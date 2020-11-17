@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/menu_location_add"
+        android:title="@string/add_route"
+        app:showAsAction="ifRoom"/>
+
+    <item
+        android:id="@+id/menu_satellite_map"
+        android:title="@string/satellite_map"
+        app:showAsAction="never"/>
+
+    <item
+        android:id="@+id/menu_normal_map"
+        android:title="@string/normal_map"
+        app:showAsAction="never"/>
+</menu>

@@ -1,5 +1,21 @@
 <resources>
-    <string name="app_name">Pumped</string>
-    <string name="title_activity_maps">Map</string>
+    <string name="app_name">Beta</string>
     <string name="location_disabled">Location needed to move map to rocks near you.</string>
+    <string name="add_route">Add Route</string>
+    <string name="satellite_map">Satellite Map</string>
+    <string name="normal_map">Normal Map</string>
+    <string name="add_route_header">What climb did you find?</string>
+    <string name="cancel">Cancel</string>
+    <string name="place">Place</string>
+    <string name="bouldering">Bouldering</string>
+    <string name="sport">Sport</string>
+    <string name="sport_climbing">Sport Climbing</string>
+    <string name="trad">Trad</string>
+    <string name="trad_climbing">Trad Climbing</string>
+    <string name="alpine">Alpine</string>
+    <string name="alpine_climbing">Alpine Climbing</string>
+    <string name="load_map_before_adding_route">Map must be loaded before adding a new route.</string>
+    <string name="no_route_selected">Please select closest description.</string>
+    <string name="please_zoom_in">Please zoom in more and be more accurate.</string>
+    <string name="add_route_activity_title">Add %s Route</string>
 </resources>
