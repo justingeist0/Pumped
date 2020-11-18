@@ -51,12 +51,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
         mMapView = findViewById(R.id.map)
         mContainer = findViewById(R.id.container_map)
-
-        var total = 7400.0
-        for(i in 1..104) {
-            total += total * 0.075
-            Log.i("mama", "week $i: total would be $total")
-        }
     }
 
     override fun onResume() {
