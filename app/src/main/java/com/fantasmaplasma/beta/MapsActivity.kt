@@ -7,11 +7,13 @@ import android.content.pm.PackageManager
 import android.graphics.Point
 import android.location.Location
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.view.children
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -24,7 +26,6 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.google.maps.android.clustering.ClusterManager
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
-
     private lateinit var mMapView: View
     private lateinit var mContainer: RelativeLayout
     private lateinit var mFusedLocationProviderClient: FusedLocationProviderClient
@@ -50,6 +51,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
         mMapView = findViewById(R.id.map)
         mContainer = findViewById(R.id.container_map)
+
+        var total = 7400.0
+        for(i in 1..104) {
+            total += total * 0.075
+            Log.i("mama", "week $i: total would be $total")
+        }
     }
 
     override fun onResume() {
@@ -72,7 +79,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                         R.raw.map_style
                     )
                 )
-            } catch (e: Exception) {
+            } catch (e: Exception) {}
+            setOnMapLongClickListener {
+                showAddLocationDialog()
             }
             mClusterManager = ClusterManager(this@MapsActivity, this)
             setOnCameraIdleListener(mClusterManager)
@@ -82,6 +91,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
         requestClimbClusterItems()
         requestLocationOnMap()
+        mMap?.stopAnimation()
+        mMap?.animateCamera(CameraUpdateFactory.zoomTo(mMap?.minZoomLevel ?: return))//TODO remove
     }
 
     private fun requestClimbClusterItems() {
@@ -186,32 +197,27 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         Dialog(this).apply {
             setContentView(R.layout.dialog_location_add)
 
-            val radioGroup = findViewById<RadioGroup>(R.id.rg_dialog_routes)
-
-            findViewById<View>(R.id.btn_dialog_location_go)
-                .setOnClickListener {
-                    createDraggableMarker(
-                        when (radioGroup.checkedRadioButtonId) {
-                            R.id.rbtn_dialog_location_bouldering ->
-                                Route.BOULDERING
-                            R.id.rbtn_dialog_location_sport ->
-                                Route.SPORT
-                            R.id.rbtn_dialog_location_trad ->
-                                Route.TRAD
-                            R.id.rbtn_dialog_location_alpine ->
-                                Route.ALPINE
-                            else -> {
-                                Toast.makeText(
-                                    this@MapsActivity,
-                                    getString(R.string.no_route_selected),
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                                return@setOnClickListener
-                            }
-                        }
-                    )
-                    cancel()
-                }
+            val btnClickListener = View.OnClickListener {btn ->
+                createDraggableMarker(
+                    when (btn.id) {
+                        R.id.btn_dialog_location_bouldering ->
+                            Route.BOULDERING
+                        R.id.btn_dialog_location_sport ->
+                            Route.SPORT
+                        R.id.btn_dialog_location_trad ->
+                            Route.TRAD
+                        R.id.btn_dialog_location_alpine ->
+                            Route.ALPINE
+                        else ->
+                            throw Exception("Invalid id of ${btn.id} route in add location dialog.")
+                    }
+                )
+                cancel()
+            }
+           findViewById<LinearLayout>(R.id.ll_dialog_location_btns)
+               .children.iterator().forEach { btn ->
+                   btn.setOnClickListener(btnClickListener)
+               }
 
             show()
         }
@@ -224,10 +230,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 this,
                 getString(R.string.load_map_before_adding_route),
                 Toast.LENGTH_SHORT
-            )
-                .show()
+            ).show()
             return
         }
+
         draggableRouteMarker?.apply {
             removeNewRouteView(this)
         }

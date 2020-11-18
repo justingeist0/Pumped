@@ -31,7 +31,7 @@ class AddRouteActivity : AppCompatActivity() {
                     Route.BOULDERING ->
                         getString(R.string.bouldering)
                     Route.SPORT ->
-                        getString(R.string.sport_climbing)
+                        getString(R.string.sport)
                     Route.TRAD ->
                         getString(R.string.trad)
                     Route.ALPINE ->
@@ -40,8 +40,6 @@ class AddRouteActivity : AppCompatActivity() {
                         throw Exception("Invalid route type of $type in AddRouteActivity")
                 }
             )
-
-
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

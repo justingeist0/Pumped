@@ -4,7 +4,7 @@
     <string name="add_route">Add Route</string>
     <string name="satellite_map">Satellite Map</string>
     <string name="normal_map">Normal Map</string>
-    <string name="add_route_header">What climb did you find?</string>
+    <string name="add_route_header"><u>Select Category</u></string>
     <string name="cancel">Cancel</string>
     <string name="place">Place</string>
     <string name="bouldering">Bouldering</string>
@@ -18,4 +18,14 @@
     <string name="no_route_selected">Please select closest description.</string>
     <string name="please_zoom_in">Please zoom in more and be more accurate.</string>
     <string name="add_route_activity_title">Add %s Route</string>
+    <string name="what_is_route_name">What is the route name?</string>
+    <string name="submit">Submit</string>
+    <string name="add_at_least_one_image"><u>Route Photos</u></string>
+    <string name="route_name">Route Name</string>
+    <string name="locating_information">Locating Information</string>
+    <string name="how_do_you_get_to_this_route">How do you get to this route?</string>
+    <string name="latitude_and_longitude">Latitude:%s   Longitude:%s</string>
+    <string name="how_difficult_is_this_route">How difficult is this route?</string>
+    <string name="comments">Comments</string>
+    <string name="difficulty"><u>Difficulty</u></string>
 </resources>

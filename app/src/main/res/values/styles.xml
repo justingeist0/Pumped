@@ -8,4 +8,15 @@
         <item name="android:navigationBarColor" tools:targetApi="lollipop">@color/colorPrimary</item>
     </style>
 
+    <style name="button">
+        <!-- Customize your theme here. -->
+        <item name="android:fontFamily">monospace</item>
+        <item name="android:background">@drawable/background_dialog_location_btn</item>
+        <item name="android:textColor">@color/colorTextNormal</item>
+        <item name="android:layout_margin">1dp</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:padding">8dp</item>
+    </style>
+
 </resources>
