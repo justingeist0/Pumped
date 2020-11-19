@@ -5,7 +5,11 @@
     tools:targetApi="lollipop">
     <item>
         <shape>
-            <solid android:color="@color/colorPrimary"/>
+            <solid android:color="@color/colorTextButton"/>
+            <stroke android:color="@color/colorPrimary"
+                android:width="3dp"
+                android:dashGap="3dp"
+                android:dashWidth="3dp"/>
         </shape>
     </item>
 </ripple>

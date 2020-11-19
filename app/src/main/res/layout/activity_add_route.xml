@@ -1,131 +1,175 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/background"
     android:orientation="vertical">
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@id/btn_add_route_submit"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/btn_add_route_submit">
+        app:layout_constraintVertical_bias="0.0">
 
-       <LinearLayout
-           android:layout_width="match_parent"
-           android:layout_height="wrap_content"
-           android:layout_marginHorizontal="8dp"
-           android:orientation="vertical">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
-           <com.google.android.material.textfield.TextInputLayout
-               android:id="@+id/textField"
-               android:layout_width="match_parent"
-               android:layout_height="wrap_content"
-               android:layout_marginTop="8dp"
-               android:background="@color/colorButton"
-               app:boxStrokeColor="@color/colorPrimary"
-               app:boxStrokeWidth="1dp"
-               app:counterEnabled="true"
-               app:errorEnabled="true"
-               app:counterMaxLength="40"
-               android:hint="@string/route_name">
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/et_layout_add_route_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="8dp"
+                android:layout_marginTop="8dp"
+                android:hint="@string/route_name"
+                android:textColorHint="@color/colorPrimary"
+                android:background="@color/colorTextButton"
+                app:counterEnabled="true"
+                app:counterMaxLength="40"
+                app:counterTextColor="@color/colorPrimary"
+                app:errorEnabled="true"
+                app:hintTextColor="@color/colorPrimary">
 
-               <com.google.android.material.textfield.TextInputEditText
-                   android:id="@+id/et_add_route_name"
-                   android:layout_width="match_parent"
-                   android:layout_height="wrap_content"
-                   />
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/et_add_route_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/colorTextButton"
+                    android:lines="1"
+                    android:textColor="@color/colorPrimaryDark" />
 
-           </com.google.android.material.textfield.TextInputLayout>
+            </com.google.android.material.textfield.TextInputLayout>
 
-           <TextView
-               android:layout_width="match_parent"
-               android:layout_height="wrap_content"
-               android:text="@string/add_at_least_one_image"
-               android:layout_marginTop="12dp"
-               android:textColor="@android:color/black"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="8dp"
+                android:layout_marginTop="12dp"
+                android:text="@string/add_at_least_one_image"
+                android:textColor="@color/colorPrimaryDark" />
 
-           <androidx.recyclerview.widget.RecyclerView
-               android:layout_width="match_parent"
-               android:layout_height="wrap_content" />
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_add_route_images"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
 
-           <com.google.android.material.textfield.TextInputLayout
-               android:layout_width="match_parent"
-               android:layout_height="wrap_content"
-               android:layout_marginTop="8dp"
-               android:background="@color/colorButton"
-               app:counterEnabled="true"
-               app:counterMaxLength="4"
-               android:hint="Estimated Height(ft)">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginHorizontal="8dp"
+                android:layout_marginTop="8dp"
+                android:background="@color/colorTextButton">
 
-               <com.google.android.material.textfield.TextInputEditText
-                   android:id="@+id/et_add_route_height"
-                   android:layout_width="match_parent"
-                   android:layout_height="wrap_content"
-                   android:inputType="number"
-                   />
+                <TextView
+                    android:id="@+id/tv_add_route_difficulty"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="14dp"
+                    android:layout_marginTop="14dp"
+                    android:text="@string/base_difficulty"
+                    android:textColor="@color/colorPrimary" />
 
-           </com.google.android.material.textfield.TextInputLayout>
+                <com.google.android.material.slider.Slider
+                    android:id="@+id/slider_add_route_difficulty"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:stepSize="1"
+                    android:valueFrom="0"
+                    android:valueTo="100"
+                    app:thumbColor="@color/colorPrimaryDark"
+                    app:tickColorActive="@color/colorPrimary"
+                    app:tickColorInactive="@color/background"
+                    app:trackColorActive="@color/colorPrimary"
+                    app:trackColorInactive="@color/background" />
 
-           <com.google.android.material.slider.Slider
-               android:layout_width="match_parent"
-               android:layout_height="wrap_content"
-               android:layout_marginTop="8dp"
-               app:trackColor="@color/colorPrimaryDark"
-               app:tickColor="@color/colorPrimaryDark"
-               app:thumbColor="@color/colorPrimary"
-               app:haloColor=""
-               android:stepSize="1"
-               android:valueFrom="0"
-               android:valueTo="100" />
+                <TextView
+                    android:id="@+id/tv_add_route_grade"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="14dp"
+                    android:layout_marginBottom="14dp"
+                    android:text="@string/base_grade"
+                    android:textColor="@color/colorPrimary" />
 
-           <TextView
-               android:layout_width="match_parent"
-               android:layout_height="wrap_content"
-               android:text="@string/difficulty"
-               android:textColor="@android:color/black"/>
+            </LinearLayout>
 
-           <TextView
-               android:layout_width="match_parent"
-               android:layout_height="wrap_content"
-               android:layout_marginTop="8dp"
-               android:text="@string/latitude_and_longitude"
-               android:textColor="@android:color/black"/>
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/et_layout_add_route_height"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="8dp"
+                android:layout_marginTop="8dp"
+                android:background="@color/colorTextButton"
+                android:hint="@string/height_ft"
+                android:textColorHint="@color/colorPrimary"
+                app:counterEnabled="true"
+                app:counterMaxLength="4"
+                app:counterTextColor="@color/colorPrimary"
+                app:hintTextColor="@color/colorPrimary">
 
-           <com.google.android.material.textfield.TextInputLayout
-               android:layout_width="match_parent"
-               android:layout_height="wrap_content"
-               android:background="@color/colorButton"
-               app:counterEnabled="true"
-               app:counterMaxLength="1000"
-               android:hint="@string/locating_information">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/et_add_route_height"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/colorTextButton"
+                    android:inputType="number"
+                    android:textColor="@color/colorPrimaryDark" />
 
-               <com.google.android.material.textfield.TextInputEditText
-                   android:id="@+id/et_add_route_location"
-                   android:layout_width="match_parent"
-                   android:layout_height="wrap_content"
-                   />
+            </com.google.android.material.textfield.TextInputLayout>
 
-           </com.google.android.material.textfield.TextInputLayout>
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="8dp"
+                android:layout_marginTop="8dp"
+                android:background="@color/colorTextButton"
+                android:hint="@string/app_name"
+                android:textColorHint="@color/colorPrimary"
+                app:counterEnabled="true"
+                app:counterMaxLength="1000"
+                app:counterTextColor="@color/colorPrimary"
+                app:hintTextColor="@color/colorPrimary"> <!-- ;) -->
 
-           <com.google.android.material.textfield.TextInputLayout
-               android:layout_width="match_parent"
-               android:layout_height="wrap_content"
-               android:layout_marginTop="8dp"
-               android:background="@color/colorButton"
-               app:counterEnabled="true"
-               app:counterMaxLength="1000"
-               android:hint="@string/comments">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/et_add_route_beta"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/colorTextButton"
+                    android:textColor="@color/colorPrimaryDark" />
 
-               <com.google.android.material.textfield.TextInputEditText
-                   android:id="@+id/et_add_route_comment"
-                   android:layout_width="match_parent"
-                   android:layout_height="wrap_content"
-                   />
+            </com.google.android.material.textfield.TextInputLayout>
 
-           </com.google.android.material.textfield.TextInputLayout>
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/et_layout_add_route_location"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp"
+                android:background="@color/colorTextButton"
+                android:hint="@string/locating_information"
+                android:textColorHint="@color/colorPrimary"
+                app:counterEnabled="true"
+                app:counterMaxLength="1000"
+                app:counterTextColor="@color/colorPrimary"
+                app:helperText="@string/latitude_and_longitude"
+                app:hintTextColor="@color/colorPrimary">
 
-       </LinearLayout>
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/et_add_route_location"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/colorTextButton"
+                    android:textColor="@color/colorPrimaryDark" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+        </LinearLayout>
 
     </ScrollView>
 
@@ -133,9 +177,9 @@
         android:id="@+id/btn_add_route_submit"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/submit"
         android:background="@drawable/background_add_route_submit_btn"
-        android:textColor="@color/colorTextNormal"
-        app:layout_constraintBottom_toBottomOf="parent"/>
+        android:text="@string/submit"
+        android:textColor="@color/colorTextButton"
+        app:layout_constraintBottom_toBottomOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

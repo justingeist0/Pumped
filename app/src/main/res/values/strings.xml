@@ -7,7 +7,7 @@
     <string name="add_route_header"><u>Select Category</u></string>
     <string name="cancel">Cancel</string>
     <string name="place">Place</string>
-    <string name="bouldering">Bouldering</string>
+    <string name="bouldering">Boulder</string>
     <string name="sport">Sport</string>
     <string name="sport_climbing">Sport Climbing</string>
     <string name="trad">Trad</string>
@@ -22,10 +22,13 @@
     <string name="submit">Submit</string>
     <string name="add_at_least_one_image"><u>Route Photos</u></string>
     <string name="route_name">Route Name</string>
-    <string name="locating_information">Locating Information</string>
+    <string name="locating_information">Locating Tips</string>
     <string name="how_do_you_get_to_this_route">How do you get to this route?</string>
     <string name="latitude_and_longitude">Latitude:%s   Longitude:%s</string>
     <string name="how_difficult_is_this_route">How difficult is this route?</string>
-    <string name="comments">Comments</string>
-    <string name="difficulty"><u>Difficulty</u></string>
+    <string name="base_difficulty">Beta Scale: ?/100</string>
+    <string name="difficulty">Beta Scale: %s/100</string>
+    <string name="height_ft">Height (ft)</string>
+    <string name="base_grade">Grade: ?</string>
+    <string name="grade">Grade: %s</string>
 </resources>

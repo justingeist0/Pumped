@@ -1,4 +1,4 @@
-package com.fantasmaplasma.beta
+package com.fantasmaplasma.beta.data
 
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.clustering.ClusterItem
@@ -6,7 +6,8 @@ import com.google.maps.android.clustering.ClusterItem
 class Route(private val mPosition: LatLng,
             private val mTitle: String,
             private val mSnippet: String,
-            private val mType: Int = BOULDERING)
+            private val mType: Int = BOULDERING
+)
     : ClusterItem {
 
     override fun getPosition(): LatLng {

@@ -1,6 +1,8 @@
-package com.fantasmaplasma.beta
+package com.fantasmaplasma.beta.adapter
 
 import android.content.Context
+import com.fantasmaplasma.beta.R
+import com.fantasmaplasma.beta.data.Route
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.MarkerOptions

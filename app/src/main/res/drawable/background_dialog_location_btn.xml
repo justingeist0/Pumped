@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ripple xmlns:tools="http://schemas.android.com/tools"
-    android:color="@android:color/darker_gray"
+    android:color="@color/colorPrimaryDark"
     xmlns:android="http://schemas.android.com/apk/res/android"
     tools:targetApi="lollipop">
     <item>
         <shape>
-            <solid android:color="@color/colorButton"/>
+            <solid android:color="@color/colorPrimary"/>
             <corners android:radius="28dp"/>
         </shape>
     </item>

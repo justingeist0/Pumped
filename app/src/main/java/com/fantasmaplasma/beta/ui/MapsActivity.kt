@@ -1,4 +1,4 @@
-package com.fantasmaplasma.beta
+package com.fantasmaplasma.beta.ui
 
 import android.Manifest
 import android.app.Dialog
@@ -7,13 +7,15 @@ import android.content.pm.PackageManager
 import android.graphics.Point
 import android.location.Location
 import android.os.Bundle
-import android.util.Log
 import android.view.*
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.children
+import com.fantasmaplasma.beta.adapter.MarkerClusterRenderer
+import com.fantasmaplasma.beta.R
+import com.fantasmaplasma.beta.data.Route
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
