@@ -1,13 +1,18 @@
 package com.fantasmaplasma.beta.ui
 
-import android.content.res.Configuration
+import android.Manifest
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.MenuItem
 import android.view.View
-import androidx.recyclerview.widget.GridLayoutManager
+import androidx.core.app.ActivityCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.esafirm.imagepicker.features.ImagePicker
 import com.fantasmaplasma.beta.R
 import com.fantasmaplasma.beta.adapter.ImageAdapter
 import com.fantasmaplasma.beta.data.Route
@@ -20,6 +25,8 @@ class AddRouteActivity : AppCompatActivity() {
 
     companion object {
         const val EXTRA_CANCELLED = "extra_cancelled"
+        const val REQUEST_CODE_READ_PERMISSION = 100
+        const val REQUEST_CODE_IMAGES = 1
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -63,39 +70,23 @@ class AddRouteActivity : AppCompatActivity() {
 
             sliderAddRouteDifficulty.addOnChangeListener { _, value, _ ->
                 val betaScaleStr = getString(R.string.difficulty, value.toInt().toString())
-                etAddRouteBeta.setText(betaScaleStr)
+                tvAddRouteDifficulty.text = betaScaleStr
 
-                val conventionalScaleStr = "" //TODO
+                val conventionalGradeStr = "" //TODO
             }
         }
         setUpImageRecyclerView()
     }
 
-    private fun setUpImageRecyclerView() {
-        mImageAdapter = ImageAdapter(this) {
-            startIntentSelectImages()
-        }
-
-        binding.rvAddRouteImages.apply {
-            adapter = mImageAdapter
-
-            layoutManager =
-                LinearLayoutManager(this@AddRouteActivity, LinearLayoutManager.HORIZONTAL, false)
-
-            setHasFixedSize(true)
-        }
-    }
-
-
     private fun validateInput() {
         with(binding) {
             val routeName = etAddRouteName.text
-            etAddRouteName.error =
+            etLayoutAddRouteName.error =
                 when {
                     routeName?.length ?: 0 <= 0 ->
-                        "Enter a name for the route."
+                        "Enter the name of the route."
                     routeName?.length!! > 40 ->
-                        "It is a route name, not a poem."
+                        "Enter a shorter name."
                     else ->
                         ""
                 }
@@ -110,12 +101,12 @@ class AddRouteActivity : AppCompatActivity() {
             }
 
             val routeHeight = etAddRouteHeight.text
-            etAddRouteHeight.error =
+            etLayoutAddRouteHeight.error =
                 when {
                     routeHeight?.length ?: 0 <= 0 ->
                         "Make your best estimate for the height."
-                    etAddRouteBeta.text!!.length > 5 ->
-                        "Oxygen level is too low at that height."
+                    routeHeight!!.length > 5 ->
+                        "Oxygen level too low at that height."
                     else ->
                         ""
                 }
@@ -124,9 +115,9 @@ class AddRouteActivity : AppCompatActivity() {
             val locatingTips = etAddRouteLocation.toString()
 
             val isValid =
-                etAddRouteBeta.error == "" &&
-                        betaScaleStr != "?" &&
-                        etAddRouteHeight.error == ""
+                etLayoutAddRouteName.error == "" &&
+                betaScaleStr != "?" &&
+                etLayoutAddRouteHeight.error == ""
 
             if(isValid) {
                 finish()
@@ -134,8 +125,39 @@ class AddRouteActivity : AppCompatActivity() {
         }
     }
 
-    private fun startIntentSelectImages() {
+    private fun setUpImageRecyclerView() {
+        mImageAdapter = ImageAdapter(this) {
+            startIntentSelectImages()
+        }
 
+        binding.rvAddRouteImages.apply {
+            adapter = mImageAdapter
+
+            layoutManager =
+                LinearLayoutManager(this@AddRouteActivity, LinearLayoutManager.HORIZONTAL, false)
+        }
+    }
+
+    private fun startIntentSelectImages() {
+        if(ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) !=
+            PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), REQUEST_CODE_READ_PERMISSION)
+            return
+        }
+        ImagePicker.create(this)
+            .limit(10)
+            .start()
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if(ImagePicker.shouldHandle(requestCode, resultCode, data)) {
+            mImageAdapter.setImageList(
+                ImagePicker.getImages(data)
+            )
+            binding.rvAddRouteImages.invalidate()
+        }
+
+        super.onActivityResult(requestCode, resultCode, data)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

@@ -36,7 +36,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     companion object {
         const val LOCATION_PERMISSION_REQUEST_CODE = 1
-        const val ZOOM_RANGE_NEW_ROUTE = 3f
+        const val ZOOM_RANGE_NEW_ROUTE = 35f
         const val EXTRA_LATITUDE = "extra_latitude"
         const val EXTRA_LONGITUDE = "extra_longitude"
         const val EXTRA_ROUTE_TYPE = "extra_route_type"
@@ -119,11 +119,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             Manifest.permission.ACCESS_COARSE_LOCATION
         )
         for (permission in permissions) {
-            if (ContextCompat.checkSelfPermission(
-                    applicationContext,
-                    permission
-                ) != PackageManager.PERMISSION_GRANTED
-            ) {
+            if (ContextCompat.checkSelfPermission(this, permission)
+                != PackageManager.PERMISSION_GRANTED) {
+
                 ActivityCompat
                     .requestPermissions(
                         this,
@@ -131,11 +129,14 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                         LOCATION_PERMISSION_REQUEST_CODE
                     )
                 break
+
             } else {
+
                 mMap?.isMyLocationEnabled = true
                 mFusedLocationProviderClient.lastLocation.addOnSuccessListener { location ->
                     moveMapOverLocation(location)
                 }
+
             }
         }
     }
