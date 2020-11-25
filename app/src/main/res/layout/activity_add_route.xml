@@ -40,7 +40,7 @@
                     android:id="@+id/et_add_route_name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@color/colorTextButton"
+                    android:background="@drawable/underline_edit_text_selector"
                     android:inputType="textCapSentences"
                     android:textColor="@color/colorPrimaryDark" />
 
@@ -111,7 +111,7 @@
                     android:id="@+id/et_add_route_height"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@color/colorTextButton"
+                    android:background="@drawable/underline_edit_text_selector"
                     android:inputType="number"
                     android:textColor="@color/colorPrimaryDark" />
 
@@ -134,7 +134,7 @@
                     android:id="@+id/et_add_route_beta"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@color/colorTextButton"
+                    android:background="@drawable/underline_edit_text_selector"
                     android:textColor="@color/colorPrimaryDark" />
 
             </com.google.android.material.textfield.TextInputLayout>
@@ -157,7 +157,7 @@
                     android:id="@+id/et_add_route_location"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@color/colorTextButton"
+                    android:background="@drawable/underline_edit_text_selector"
                     android:textColor="@color/colorPrimaryDark" />
 
             </com.google.android.material.textfield.TextInputLayout>

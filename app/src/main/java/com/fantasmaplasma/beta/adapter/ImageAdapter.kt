@@ -34,7 +34,7 @@ class ImageAdapter(private val mContext: Context, private val startIntentChooseI
         holder.bindViewHolder(position)
     }
 
-    override fun getItemCount() =
+    override fun getItemCount() = // Increase by 1 for add item
         mImage.size + 1
 
     inner class ImageHolder(view: View): RecyclerView.ViewHolder(view) {
