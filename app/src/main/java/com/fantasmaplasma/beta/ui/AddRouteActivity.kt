@@ -129,10 +129,8 @@ class AddRouteActivity : AppCompatActivity() {
         mImageAdapter = ImageAdapter(this) {
             startIntentSelectImages()
         }
-
         binding.rvAddRouteImages.apply {
             adapter = mImageAdapter
-
             layoutManager =
                 LinearLayoutManager(this@AddRouteActivity, LinearLayoutManager.HORIZONTAL, false)
         }
@@ -165,17 +163,20 @@ class AddRouteActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        MapsActivity.draggableRouteMarker?.apply {
-            visibility = View.VISIBLE
-            alpha = 1f
-        }
         onBackPressed()
         return true
     }
 
     override fun onBackPressed() {
+        enableMarker()
         super.onBackPressed()
+    }
 
+    private fun enableMarker() {
+        MapsActivity.draggableRouteMarker?.apply {
+            visibility = View.VISIBLE
+            alpha = 1f
+        }
     }
 
 }
