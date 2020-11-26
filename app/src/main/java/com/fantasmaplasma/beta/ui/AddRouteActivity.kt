@@ -146,7 +146,12 @@ class AddRouteActivity : AppCompatActivity() {
         }
         ImagePicker.create(this)
             .limit(10)
-            .start()
+            .includeAnimation(true)
+            .apply {
+                val selectedImages = ArrayList(mImageAdapter.mImage)
+                if(selectedImages.isNotEmpty())
+                    origin(selectedImages)
+            }.start()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -156,7 +161,6 @@ class AddRouteActivity : AppCompatActivity() {
             )
             binding.rvAddRouteImages.invalidate()
         }
-
         super.onActivityResult(requestCode, resultCode, data)
     }
 

@@ -1,21 +1,25 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
+
     <style name="AppTheme" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
-        <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <item name="colorControlNormal">@color/colorTextButton</item>
+        <item name="android:textColorPrimary">@color/colorTextButton</item>
         <item name="android:navigationBarColor" tools:targetApi="lollipop">@color/colorPrimaryDark</item>
+        <item name="actionBarTheme">@style/actionBarTheme</item>
     </style>
 
-    <style name="inputLabel" parent="TextAppearance.AppCompat">
-        <!-- Customize your theme here. -->
-        <item name="colorControlNormal">@color/colorPrimary</item>
-        <item name="colorControlActivated">@color/colorPrimaryDark</item>
+    <style name="actionBarTheme" parent="@style/ThemeOverlay.AppCompat.ActionBar">
+        <item name="colorControlNormal">@color/colorTextButton</item>
+        <item name="actionOverflowButtonStyle">@style/actionOverflowButtonStyle</item> <!-- sets the style for the overflow button -->
+    </style>
+
+    <style name="actionOverflowButtonStyle" parent="@style/Widget.AppCompat.ActionButton.Overflow">
+        <item name="android:tint">@color/colorTextButton</item>
     </style>
 
     <style name="button">
-        <!-- Customize your theme here. -->
         <item name="android:fontFamily">monospace</item>
         <item name="android:background">@drawable/background_dialog_location_btn</item>
         <item name="android:textColor">@color/colorTextButton</item>

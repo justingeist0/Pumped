@@ -14,7 +14,7 @@ import com.fantasmaplasma.beta.R
 
 class ImageAdapter(private val mContext: Context, private val startIntentChooseImage: () -> Unit) : RecyclerView.Adapter<ImageAdapter.ImageHolder>() {
 
-    private var mImage = listOf<Image>()
+    var mImage = listOf<Image>()
     private val mImageClickListener = View.OnClickListener {
         startIntentChooseImage()
     }
