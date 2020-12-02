@@ -3,15 +3,12 @@ package com.fantasmaplasma.beta.ui
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import androidx.core.app.ActivityCompat
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.esafirm.imagepicker.features.ImagePicker
 import com.fantasmaplasma.beta.R
 import com.fantasmaplasma.beta.adapter.ImageAdapter
@@ -33,8 +30,9 @@ class AddRouteActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityAddRouteBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        setUpToolbar()
-        setUpViews()
+        initToolbar()
+        initListeners()
+        initImageRecyclerView()
     }
 
     private fun getLatLng() = LatLng(
@@ -42,7 +40,7 @@ class AddRouteActivity : AppCompatActivity() {
         intent.getDoubleExtra(MapsActivity.EXTRA_LONGITUDE, 0.0)
     )
 
-    private fun setUpToolbar() {
+    private fun initToolbar() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         val type = intent.getIntExtra(MapsActivity.EXTRA_ROUTE_TYPE, 0)
         supportActionBar?.title = getString(
@@ -57,16 +55,13 @@ class AddRouteActivity : AppCompatActivity() {
                     Route.ALPINE ->
                         getString(R.string.alpine)
                     else ->
-                        throw Exception("Invalid route type of $type in AddRouteActivity")
+                        throw Exception("Invalid route type of $type")
                 }
             )
     }
 
-    private fun setUpViews() {
+    private fun initListeners() {
         with(binding) {
-            btnAddRouteSubmit.setOnClickListener {
-                validateInput()
-            }
 
             sliderAddRouteDifficulty.addOnChangeListener { _, value, _ ->
                 val betaScaleStr = getString(R.string.difficulty, value.toInt().toString())
@@ -74,8 +69,12 @@ class AddRouteActivity : AppCompatActivity() {
 
                 val conventionalGradeStr = "" //TODO
             }
+
+            btnAddRouteSubmit.setOnClickListener {
+                validateInput()
+            }
+
         }
-        setUpImageRecyclerView()
     }
 
     private fun validateInput() {
@@ -97,7 +96,7 @@ class AddRouteActivity : AppCompatActivity() {
                     fullBetaScaleStr.indexOf(' ') + 1,
                     fullBetaScaleStr.indexOf('/')
                 )
-            if(betaScaleStr == "?") {
+            if (betaScaleStr == "?") {
             }
 
             val routeHeight = etAddRouteHeight.text
@@ -125,7 +124,7 @@ class AddRouteActivity : AppCompatActivity() {
         }
     }
 
-    private fun setUpImageRecyclerView() {
+    private fun initImageRecyclerView() {
         mImageAdapter = ImageAdapter(this) {
             startIntentSelectImages()
         }
