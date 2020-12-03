@@ -16,6 +16,8 @@ import androidx.core.view.children
 import com.fantasmaplasma.beta.adapter.MarkerClusterRenderer
 import com.fantasmaplasma.beta.R
 import com.fantasmaplasma.beta.data.Route
+import com.firebase.ui.auth.AuthUI
+import com.firebase.ui.auth.IdpResponse
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -25,6 +27,9 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.ktx.initialize
 import com.google.maps.android.clustering.ClusterManager
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
@@ -40,7 +45,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         const val EXTRA_LATITUDE = "extra_latitude"
         const val EXTRA_LONGITUDE = "extra_longitude"
         const val EXTRA_ROUTE_TYPE = "extra_route_type"
-
+        const val RC_SIGN_IN = 100
         var draggableRouteMarker: View? = null
     }
 
@@ -93,16 +98,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private fun requestClimbClusterItems() {
         mClusterManager.clearItems()
-        // Set some lat/lng coordinates to start with.
-
-
-        // Set some lat/lng coordinates to start with.
         var lat = 51.5145160
         var lng = -0.1270060
 
-        // Add ten cluster items in close proximity, for purposes of this example.
-
-        // Add ten cluster items in close proximity, for purposes of this example.
         for (i in 0..9) {
             val offset = i / 60.0
             lat = lat + offset
@@ -121,7 +119,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         for (permission in permissions) {
             if (ContextCompat.checkSelfPermission(this, permission)
                 != PackageManager.PERMISSION_GRANTED) {
-
                 ActivityCompat
                     .requestPermissions(
                         this,
@@ -129,14 +126,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                         LOCATION_PERMISSION_REQUEST_CODE
                     )
                 break
-
             } else {
-
                 mMap?.isMyLocationEnabled = true
                 mFusedLocationProviderClient.lastLocation.addOnSuccessListener { location ->
                     moveMapOverLocation(location)
                 }
-
             }
         }
     }
@@ -218,7 +212,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
             show()
         }
-
     }
 
     private fun createDraggableMarker(routeType: Int) {
@@ -344,6 +337,34 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     }
                 }
                 .start()
+        }
+    }
+
+    private fun logIn() : Boolean {
+        val providers = mutableListOf(
+            AuthUI.IdpConfig.EmailBuilder().build(),
+            AuthUI.IdpConfig.PhoneBuilder().build(),
+            AuthUI.IdpConfig.GoogleBuilder().build()
+        )
+        startActivityForResult(
+            AuthUI.getInstance()
+                .createSignInIntentBuilder()
+                .setAvailableProviders(providers)
+                .build(),
+            RC_SIGN_IN
+        )
+        return true
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == RC_SIGN_IN) {
+            val response = IdpResponse.fromResultIntent(data)
+            if(resultCode == RESULT_OK) {
+                val user = FirebaseAuth.getInstance().currentUser
+            } else {
+
+            }
         }
     }
 

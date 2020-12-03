@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Beta</string>
+    <string name="app_name">Betadata</string>
     <string name="location_disabled">Location needed to move map to rocks near you.</string>
     <string name="add_route">Add Route</string>
     <string name="satellite_map">Satellite Map</string>
@@ -40,4 +40,10 @@
     <string name="invalid_username">Not a valid username</string>
     <string name="invalid_password">Password must be >5 characters</string>
     <string name="login_failed">"Login failed"</string>
+
+    <string name="facebook_application_id" translatable="false">YOUR_APP_ID</string>
+    <string name="facebook_login_protocol_scheme" translatable="false">fbYOUR_APP_ID</string>
+    <string name="twitter_consumer_key" translatable="false">YOUR_CONSUMER_KEY</string>
+    <string name="twitter_consumer_secret" translatable="false">YOUR_CONSUMER_SECRET</string>
+
 </resources>

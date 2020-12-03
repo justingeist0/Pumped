@@ -8,3 +8,8 @@ class BetaApplication : Application() {
         super.onCreate()
     }
 }
+
+
+fun main() {
+
+}
