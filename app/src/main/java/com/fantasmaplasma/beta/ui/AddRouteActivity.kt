@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import androidx.core.app.ActivityCompat
@@ -15,6 +16,8 @@ import com.fantasmaplasma.beta.adapter.ImageAdapter
 import com.fantasmaplasma.beta.data.Route
 import com.fantasmaplasma.beta.databinding.ActivityAddRouteBinding
 import com.google.android.gms.maps.model.LatLng
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.ktx.Firebase
 
 class AddRouteActivity : AppCompatActivity() {
     private lateinit var binding: ActivityAddRouteBinding
@@ -40,12 +43,14 @@ class AddRouteActivity : AppCompatActivity() {
         intent.getDoubleExtra(MapsActivity.EXTRA_LONGITUDE, 0.0)
     )
 
+    private fun getRouteID() =
+        intent.getIntExtra(MapsActivity.EXTRA_ROUTE_TYPE, 0)
+
     private fun initToolbar() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        val type = intent.getIntExtra(MapsActivity.EXTRA_ROUTE_TYPE, 0)
         supportActionBar?.title = getString(
             R.string.add_route_activity_title,
-                when(type) {
+                when(getRouteID()) {
                     Route.BOULDERING ->
                         getString(R.string.bouldering)
                     Route.SPORT ->
@@ -55,7 +60,7 @@ class AddRouteActivity : AppCompatActivity() {
                     Route.ALPINE ->
                         getString(R.string.alpine)
                     else ->
-                        throw Exception("Invalid route type of $type")
+                        throw Exception("Invalid route type of ${getRouteID()}")
                 }
             )
     }
@@ -118,10 +123,30 @@ class AddRouteActivity : AppCompatActivity() {
                 betaScaleStr != "?" &&
                 etLayoutAddRouteHeight.error == ""
 
+            val latLng = getLatLng()
+
             if(isValid) {
+                uploadRoute(
+                    hashMapOf(
+                        "name" to routeName.toString(),
+                        "latitude" to latLng.latitude,
+                        "longitude" to latLng.longitude,
+                        "height" to Integer.parseInt(routeHeight.toString()),
+                        "categoryID" to getRouteID(),
+                        "betaScale" to Integer.parseInt(betaScaleStr)
+                    )
+                )
                 finish()
             }
         }
+    }
+
+    private fun uploadRoute(route: HashMap<String, Any>) {
+        val db = FirebaseFirestore.getInstance()
+        db.collection("routes").document()
+            .set(route)
+            .addOnSuccessListener { Log.d("TAG", "success") }
+            .addOnFailureListener { Log.d("TAG", "Failed") }
     }
 
     private fun initImageRecyclerView() {
