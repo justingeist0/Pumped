@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
 import android.view.View
+import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.esafirm.imagepicker.features.ImagePicker
@@ -15,9 +16,9 @@ import com.fantasmaplasma.beta.R
 import com.fantasmaplasma.beta.adapter.ImageAdapter
 import com.fantasmaplasma.beta.data.Route
 import com.fantasmaplasma.beta.databinding.ActivityAddRouteBinding
+import com.fantasmaplasma.beta.utilities.Cloud
 import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.ktx.Firebase
 
 class AddRouteActivity : AppCompatActivity() {
     private lateinit var binding: ActivityAddRouteBinding
@@ -84,12 +85,12 @@ class AddRouteActivity : AppCompatActivity() {
 
     private fun validateInput() {
         with(binding) {
-            val routeName = etAddRouteName.text
+            val routeName = etAddRouteName.text.toString()
             etLayoutAddRouteName.error =
                 when {
-                    routeName?.length ?: 0 <= 0 ->
+                    routeName.isEmpty() ->
                         "Enter the name of the route."
-                    routeName?.length!! > 40 ->
+                    routeName.length > 40 ->
                         "Enter a shorter name."
                     else ->
                         ""
@@ -98,18 +99,20 @@ class AddRouteActivity : AppCompatActivity() {
             val fullBetaScaleStr = tvAddRouteDifficulty.text.toString()
             val betaScaleStr =
                 fullBetaScaleStr.substring(
-                    fullBetaScaleStr.indexOf(' ') + 1,
+                    fullBetaScaleStr.lastIndexOf(' ')+1,
                     fullBetaScaleStr.indexOf('/')
                 )
             if (betaScaleStr == "?") {
+                Toast.makeText(this@AddRouteActivity, "Estimate the grade.", Toast.LENGTH_SHORT)
+                    .show()
             }
 
-            val routeHeight = etAddRouteHeight.text
+            val routeHeight = etAddRouteHeight.text.toString()
             etLayoutAddRouteHeight.error =
                 when {
-                    routeHeight?.length ?: 0 <= 0 ->
+                    routeHeight.isEmpty() ->
                         "Make your best estimate for the height."
-                    routeHeight!!.length > 5 ->
+                    routeHeight.length > 5 ->
                         "Oxygen level too low at that height."
                     else ->
                         ""
@@ -118,35 +121,86 @@ class AddRouteActivity : AppCompatActivity() {
             val beta = etAddRouteBeta.toString()
             val locatingTips = etAddRouteLocation.toString()
 
-            val isValid =
-                etLayoutAddRouteName.error == "" &&
-                betaScaleStr != "?" &&
-                etLayoutAddRouteHeight.error == ""
+            Log.d("TAG", etLayoutAddRouteName.error.toString())
+            Log.d("TAG", betaScaleStr)
+            Log.d("TAG", etLayoutAddRouteHeight.error.toString())
 
-            val latLng = getLatLng()
+            val isValid =
+                etLayoutAddRouteName.error?.toString()?.isEmpty() ?: true &&
+                betaScaleStr != "?" &&
+                etLayoutAddRouteHeight.error?.toString()?.isEmpty() ?: true
 
             if(isValid) {
+                val latLng = getLatLng()
+                val betaScaleInt = Integer.parseInt(betaScaleStr)
                 uploadRoute(
-                    hashMapOf(
-                        "name" to routeName.toString(),
-                        "latitude" to latLng.latitude,
-                        "longitude" to latLng.longitude,
-                        "height" to Integer.parseInt(routeHeight.toString()),
-                        "categoryID" to getRouteID(),
-                        "betaScale" to Integer.parseInt(betaScaleStr)
+                    routeStandbyData = Cloud.createRouteStandByHashMap (
+                        "",
+                        routeName,
+                        latLng.latitude,
+                        latLng.longitude,
+                        Integer.parseInt(routeHeight),
+                        getRouteID(),
+                        betaScaleInt
+                    ),
+                    nameData = Cloud.createCommentDataHashMap(
+                        "",
+                        routeName
+                    ),
+                    heightData = Cloud.createCommentDataHashMap(
+                        "",
+                        routeHeight
+                    ),
+                    betaScaleData = Cloud.createCommentDataHashMap(
+                        "",
+                        betaScaleInt
+                    ),
+                    commentData = Cloud.createCommentDataHashMap (
+                        "",
+                        "comment"
                     )
                 )
                 finish()
+            } else {
+                Toast.makeText(this@AddRouteActivity, "Invalid Input", Toast.LENGTH_SHORT).show()
             }
         }
     }
 
-    private fun uploadRoute(route: HashMap<String, Any>) {
-        val db = FirebaseFirestore.getInstance()
-        db.collection("routes").document()
-            .set(route)
-            .addOnSuccessListener { Log.d("TAG", "success") }
-            .addOnFailureListener { Log.d("TAG", "Failed") }
+    private fun uploadRoute(routeStandbyData: HashMap<String, Any>, nameData: HashMap<String, Any>,
+                            heightData: HashMap<String, Any>, betaScaleData: HashMap<String, Any>, commentData: HashMap<String, Any>) {
+        with(Cloud) {
+            val routesRef = FirebaseFirestore.getInstance().collection(ROUTE)
+            routesRef.document().apply {
+                set(routeStandbyData)
+                    .addOnSuccessListener { Log.d("TAG", "Uploaded Standby Info") }
+                    .addOnFailureListener { Log.d("TAG", "Failed") }
+
+                routesRef.document(id)
+                    .collection(NAME)
+                    .add(nameData)
+                    .addOnSuccessListener { Log.d("TAG", "Uploaded ID") }
+                    .addOnFailureListener { Log.d("TAG", "Failed") }
+
+                routesRef.document(id)
+                    .collection(HEIGHT)
+                    .add(heightData)
+                    .addOnSuccessListener { Log.d("TAG", "Uploaded Height") }
+                    .addOnFailureListener { Log.d("TAG", "Failed") }
+
+                routesRef.document(id)
+                    .collection(BETA_SCALE)
+                    .add(betaScaleData)
+                    .addOnSuccessListener { Log.d("TAG", "Uploaded Scale") }
+                    .addOnFailureListener { Log.d("TAG", "Failed") }
+
+                routesRef.document(id)
+                    .collection(COMMENT_DATA)
+                    .add(commentData)
+                    .addOnSuccessListener { Log.d("TAG", "Uploaded Comment") }
+                    .addOnFailureListener { Log.d("TAG", "Failed") }
+            }
+        }
     }
 
     private fun initImageRecyclerView() {
