@@ -86,7 +86,7 @@ class AddRouteActivity : AppCompatActivity() {
     private fun validateInput() {
         with(binding) {
             val routeName = etAddRouteName.text.toString()
-            etLayoutAddRouteName.error =
+            val nameErrorStr =
                 when {
                     routeName.isEmpty() ->
                         "Enter the name of the route."
@@ -95,6 +95,7 @@ class AddRouteActivity : AppCompatActivity() {
                     else ->
                         ""
                 }
+            etLayoutAddRouteName.error = nameErrorStr
 
             val fullBetaScaleStr = tvAddRouteDifficulty.text.toString()
             val betaScaleStr =
@@ -108,7 +109,7 @@ class AddRouteActivity : AppCompatActivity() {
             }
 
             val routeHeight = etAddRouteHeight.text.toString()
-            etLayoutAddRouteHeight.error =
+            val heightErrorStr =
                 when {
                     routeHeight.isEmpty() ->
                         "Make your best estimate for the height."
@@ -117,18 +118,16 @@ class AddRouteActivity : AppCompatActivity() {
                     else ->
                         ""
                 }
-
-            val beta = etAddRouteBeta.toString()
-            val locatingTips = etAddRouteLocation.toString()
+            etLayoutAddRouteHeight.error = heightErrorStr
 
             Log.d("TAG", etLayoutAddRouteName.error.toString())
             Log.d("TAG", betaScaleStr)
             Log.d("TAG", etLayoutAddRouteHeight.error.toString())
 
             val isValid =
-                etLayoutAddRouteName.error?.toString()?.isEmpty() ?: true &&
-                betaScaleStr != "?" &&
-                etLayoutAddRouteHeight.error?.toString()?.isEmpty() ?: true
+                nameErrorStr.isEmpty() &&
+                heightErrorStr.isEmpty() &&
+                betaScaleStr != "?"
 
             if(isValid) {
                 val latLng = getLatLng()
