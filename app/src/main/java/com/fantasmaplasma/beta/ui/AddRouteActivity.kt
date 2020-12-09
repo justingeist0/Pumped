@@ -25,9 +25,7 @@ class AddRouteActivity : AppCompatActivity() {
     private lateinit var mImageAdapter: ImageAdapter
 
     companion object {
-        const val EXTRA_CANCELLED = "extra_cancelled"
         const val REQUEST_CODE_READ_PERMISSION = 100
-        const val REQUEST_CODE_IMAGES = 1
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -3,24 +3,28 @@ package com.fantasmaplasma.beta.data
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.clustering.ClusterItem
 
-class Route(private val mPosition: LatLng,
-            private val mTitle: String,
-            private val mSnippet: String,
-            private val mType: Int = BOULDERING
+class Route(private val latLng: LatLng,
+            val name: String,
+            val height: Int,
+            val betaScale: Int,
+            val userID: String,
+            private val type: Int = BOULDERING
 )
     : ClusterItem {
 
     override fun getPosition(): LatLng {
-        return mPosition
+        return latLng
     }
 
-    override fun getTitle(): String? {
-        return mTitle
+    override fun getTitle(): String {
+        return name
     }
 
-    override fun getSnippet(): String? {
-        return mSnippet
+    override fun getSnippet(): String {
+        return height.toString()
     }
+
+    fun getType() = type
 
     companion object {
         const val BOULDERING = 0

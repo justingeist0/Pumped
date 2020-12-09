@@ -1,5 +1,11 @@
 package com.fantasmaplasma.beta.utilities
 
+import android.util.Log
+import com.fantasmaplasma.beta.data.Route
+import com.google.android.gms.maps.model.LatLng
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.QuerySnapshot
+
 object Cloud {
     const val ROUTE = "route"
     const val NAME = "name"
@@ -12,6 +18,29 @@ object Cloud {
     private const val CATEGORY_ID = "categoryID"
     private const val TEXT = "text"
     private const val POINTS = "points"
+
+    fun downloadRouteClusterItems(onComplete: (MutableList<Route>) -> Unit) {
+        FirebaseFirestore.getInstance().collection("route")
+            .get().addOnSuccessListener { querySnapshot ->
+                val routeInfo = mutableListOf<Route>()
+                querySnapshot.forEach { routeJson ->
+                    try {
+                        routeInfo.add(Route(
+                            latLng = LatLng(
+                                routeJson.getDouble(LATITUDE)!!,
+                                routeJson.getDouble(LONGITUDE)!!
+                            ),
+                            name = routeJson.getString(NAME)!!,
+                            height = routeJson.getLong(HEIGHT)!!.toInt(),
+                            betaScale = routeJson.getLong(BETA_SCALE)!!.toInt(),
+                            userID = routeJson.getString(USER_ID)!!,
+                            type = routeJson.getLong(CATEGORY_ID)!!.toInt()
+                        ))
+                    } catch (e: Exception) {}
+                }
+                onComplete(routeInfo)
+            }
+    }
 
     fun createRouteStandByHashMap(
         userID: String,

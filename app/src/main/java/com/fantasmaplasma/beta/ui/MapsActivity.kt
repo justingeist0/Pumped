@@ -7,12 +7,14 @@ import android.content.pm.PackageManager
 import android.graphics.Point
 import android.location.Location
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.children
+import androidx.lifecycle.ViewModelProvider
 import com.fantasmaplasma.beta.adapter.MarkerClusterRenderer
 import com.fantasmaplasma.beta.R
 import com.fantasmaplasma.beta.data.Route
@@ -28,6 +30,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.ktx.initialize
 import com.google.maps.android.clustering.ClusterManager
@@ -37,6 +40,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var mContainer: RelativeLayout
     private lateinit var mFusedLocationProviderClient: FusedLocationProviderClient
     private lateinit var mClusterManager: ClusterManager<Route>
+    private lateinit var mViewModel: MapsViewModel
     private var mMap: GoogleMap? = null
 
     companion object {
@@ -58,17 +62,22 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
         mMapView = findViewById(R.id.map)
         mContainer = findViewById(R.id.container_map)
+        initViewModel()
+    }
+
+    private fun initViewModel() {
+        mViewModel = ViewModelProvider(this).get(MapsViewModel::class.java)
+        mViewModel.routesLiveData.observe(this) { clusterItems ->
+            mClusterManager.addItems(clusterItems)
+        }
     }
 
     override fun onResume() {
         super.onResume()
-        val map = mMap ?: return
         draggableRouteMarker?.apply {
             if(visibility == View.INVISIBLE)
-                removeNewRouteView(this)
+                removeNewRouteView()
         }
-        map.clear()
-        requestClimbClusterItems()
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
@@ -90,25 +99,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             mClusterManager.renderer =
                 MarkerClusterRenderer(this@MapsActivity, this, mClusterManager)
         }
-        requestClimbClusterItems()
+        mViewModel.requestRoutesData()
         requestLocationOnMap()
         mMap?.stopAnimation()
-        mMap?.animateCamera(CameraUpdateFactory.zoomTo(mMap?.minZoomLevel ?: return))//TODO remove
-    }
-
-    private fun requestClimbClusterItems() {
-        mClusterManager.clearItems()
-        var lat = 51.5145160
-        var lng = -0.1270060
-
-        for (i in 0..9) {
-            val offset = i / 60.0
-            lat = lat + offset
-            lng = lng + offset
-            val latLng = LatLng(lat, lng)
-            val offsetItem = Route(latLng, "Title $i", "Snippet $i")
-            mClusterManager.addItem(offsetItem)
-        }
+        mMap?.apply { animateCamera(CameraUpdateFactory.zoomTo(minZoomLevel)) }
     }
 
     private fun requestLocationOnMap() {
@@ -223,84 +217,89 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             ).show()
             return
         }
-
-        draggableRouteMarker?.apply {
-            removeNewRouteView(this)
-        }
+        draggableRouteMarker?.removeNewRouteView()
         draggableRouteMarker =
-            layoutInflater.inflate(R.layout.layout_map_new_route, mContainer, false).apply {
+            layoutInflater.inflate(R.layout.layout_map_new_route, mContainer, false)
+                .apply {
 
-                addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
-                    x = mContainer.width / 2f - width / 2
-                    y = mContainer.height / 2f - height / 2
-                }
-
-                var startX = -1f
-                var startY = -1f
-                setOnTouchListener { v, event ->
-                    when (event.action) {
-                        MotionEvent.ACTION_DOWN -> {
-                            startX = event.x
-                            startY = event.y
-                        }
-                        MotionEvent.ACTION_UP -> {
-                            v.performClick()
-                        }
-                        else -> {
-                            val addX = event.x - startX
-                            val addY = event.y - startY
-                            x += addX
-                            y += addY
-                        }
+                    addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
+                        x = mContainer.width / 2f - width / 2
+                        y = mContainer.height / 2f - height / 2
                     }
-                    return@setOnTouchListener true
-                }
 
-                findViewById<ImageView>(R.id.iv_new_route_type)
-                    .setImageDrawable(
-                        ContextCompat.getDrawable(
-                            this@MapsActivity,
-                            when (routeType) {
-                                Route.BOULDERING ->
-                                    R.drawable.img_marker_boulder
-                                Route.SPORT ->
-                                    R.drawable.img_marker_sport
-                                Route.TRAD ->
-                                    R.drawable.img_marker_trad
-                                Route.ALPINE ->
-                                    R.drawable.img_marker_alpine
-                                else ->
-                                    throw Exception("Drawable does not exist for route.")
-                            }
+                    setAddRouteMarkerTouchListener()
+
+                    setAddRouteMarkerImage(routeType)
+
+                    findViewById<View>(R.id.img_btn_route_remove)
+                        .setOnClickListener {
+                            it.removeNewRouteView()
+                        }
+                    findViewById<View>(R.id.img_btn_route_add)
+                        .setOnClickListener {
+                            val latLng = getLatLngFromLayoutCords(
+                                x + width / 2f,
+                                y + height
+                            ) ?: return@setOnClickListener
+                            animateMarkerToGoogleMarkerToAddRouteActivity(latLng, routeType)
+                        }
+
+                    mContainer.addView(
+                        this,
+                        ViewGroup.LayoutParams(
+                            ViewGroup.LayoutParams.WRAP_CONTENT,
+                            ViewGroup.LayoutParams.WRAP_CONTENT
                         )
                     )
-
-                findViewById<View>(R.id.img_btn_route_remove)
-                    .setOnClickListener {
-                        removeNewRouteView(this)
-                    }
-
-                findViewById<View>(R.id.img_btn_route_add)
-                    .setOnClickListener {
-                        val latLng = getLatLngFromLayoutCords(
-                            x + width / 2f,
-                            y + height
-                        ) ?: return@setOnClickListener
-                        goToAddRouteActivity(latLng, routeType)
-                    }
-
-                mContainer.addView(
-                    this,
-                    ViewGroup.LayoutParams(
-                        ViewGroup.LayoutParams.WRAP_CONTENT,
-                        ViewGroup.LayoutParams.WRAP_CONTENT
-                    )
-                )
             }
     }
 
-    private fun removeNewRouteView(view: View) {
-        mContainer.removeView(view)
+    private fun View.setAddRouteMarkerImage(routeType: Int) {
+        findViewById<ImageView>(R.id.iv_new_route_type)
+            .setImageDrawable(
+                ContextCompat.getDrawable(
+                    this@MapsActivity,
+                    when (routeType) {
+                        Route.BOULDERING ->
+                            R.drawable.img_marker_boulder
+                        Route.SPORT ->
+                            R.drawable.img_marker_sport
+                        Route.TRAD ->
+                            R.drawable.img_marker_trad
+                        Route.ALPINE ->
+                            R.drawable.img_marker_alpine
+                        else ->
+                            throw Exception("Drawable does not exist for route.")
+                    }
+                )
+            )
+    }
+
+    private fun View.setAddRouteMarkerTouchListener() {
+        var startX = -1f
+        var startY = -1f
+        setOnTouchListener { v, event ->
+            when (event.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    startX = event.x
+                    startY = event.y
+                }
+                MotionEvent.ACTION_UP -> {
+                    v.performClick()
+                }
+                else -> {
+                    val addX = event.x - startX
+                    val addY = event.y - startY
+                    x += addX
+                    y += addY
+                }
+            }
+            return@setOnTouchListener true
+        }
+    }
+
+    private fun View.removeNewRouteView() {
+        mContainer.removeView(this)
         draggableRouteMarker = null
     }
 
@@ -315,7 +314,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         return map.projection.fromScreenLocation(Point(mouseX.toInt(), mouseY.toInt()))
     }
 
-    private fun goToAddRouteActivity(latLng: LatLng, routeType: Int) {
+    private fun animateMarkerToGoogleMarkerToAddRouteActivity(latLng: LatLng, routeType: Int) {
         mMap?.addMarker(
             MarkerOptions()
                 .position(latLng)
@@ -326,18 +325,20 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 .setDuration(1000)
                 .withEndAction {
                     visibility = View.INVISIBLE
-                    this@MapsActivity.apply {
-                        startActivity(
-                            Intent(this, AddRouteActivity::class.java).apply {
-                                putExtra(EXTRA_LATITUDE, latLng.latitude)
-                                putExtra(EXTRA_LONGITUDE, latLng.longitude)
-                                putExtra(EXTRA_ROUTE_TYPE, routeType)
-                            }
-                        )
-                    }
+                    startAddRouteActivity(latLng, routeType)
                 }
                 .start()
         }
+    }
+
+    private fun startAddRouteActivity(latLng: LatLng, routeType: Int) {
+        startActivity(
+            Intent(this, AddRouteActivity::class.java).apply {
+                putExtra(EXTRA_LATITUDE, latLng.latitude)
+                putExtra(EXTRA_LONGITUDE, latLng.longitude)
+                putExtra(EXTRA_ROUTE_TYPE, routeType)
+            }
+        )
     }
 
     private fun logIn() : Boolean {

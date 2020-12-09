@@ -19,7 +19,20 @@ class MarkerClusterRenderer(context: Context, map: GoogleMap, clusterManager: Cl
     override fun onBeforeClusterItemRendered(item: Route, markerOptions: MarkerOptions) {
         markerOptions.apply {
             title(item.title)
-            icon(BitmapDescriptorFactory.fromResource(R.drawable.img_marker_boulder))
+            icon(BitmapDescriptorFactory.fromResource(
+                when (item.getType()) {
+                    Route.BOULDERING ->
+                        R.drawable.img_marker_boulder
+                    Route.ALPINE ->
+                        R.drawable.img_marker_alpine
+                    Route.SPORT ->
+                        R.drawable.img_marker_sport
+                    Route.TRAD ->
+                        R.drawable.img_marker_trad
+                    else ->
+                        R.drawable.img_marker_sport
+                }
+            ))
         }
     }
 }
