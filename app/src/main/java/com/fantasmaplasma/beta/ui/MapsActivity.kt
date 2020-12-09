@@ -33,9 +33,10 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.ktx.initialize
+import com.google.maps.android.clustering.Cluster
 import com.google.maps.android.clustering.ClusterManager
 
-class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
+class MapsActivity : AppCompatActivity(), OnMapReadyCallback, ClusterManager.OnClusterClickListener<Route> {
     private lateinit var mMapView: View
     private lateinit var mContainer: RelativeLayout
     private lateinit var mFusedLocationProviderClient: FusedLocationProviderClient
@@ -56,13 +57,13 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_maps)
+        initViewModel()
         val mapFragment = supportFragmentManager
             .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
         mMapView = findViewById(R.id.map)
         mContainer = findViewById(R.id.container_map)
-        initViewModel()
     }
 
     private fun initViewModel() {
@@ -78,6 +79,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             if(visibility == View.INVISIBLE)
                 removeNewRouteView()
         }
+        mMap?.clear()
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
@@ -94,6 +96,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 showAddLocationDialog()
             }
             mClusterManager = ClusterManager(this@MapsActivity, this)
+            mClusterManager.setOnClusterClickListener(this@MapsActivity)
             setOnCameraIdleListener(mClusterManager)
             setOnMarkerClickListener(mClusterManager)
             mClusterManager.renderer =
@@ -103,6 +106,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         requestLocationOnMap()
         mMap?.stopAnimation()
         mMap?.apply { animateCamera(CameraUpdateFactory.zoomTo(minZoomLevel)) }
+    }
+
+    override fun onClusterClick(cluster: Cluster<Route>?): Boolean {
+
+        return true
     }
 
     private fun requestLocationOnMap() {
@@ -339,22 +347,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 putExtra(EXTRA_ROUTE_TYPE, routeType)
             }
         )
-    }
-
-    private fun logIn() : Boolean {
-        val providers = mutableListOf(
-            AuthUI.IdpConfig.EmailBuilder().build(),
-            AuthUI.IdpConfig.PhoneBuilder().build(),
-            AuthUI.IdpConfig.GoogleBuilder().build()
-        )
-        startActivityForResult(
-            AuthUI.getInstance()
-                .createSignInIntentBuilder()
-                .setAvailableProviders(providers)
-                .build(),
-            RC_SIGN_IN
-        )
-        return true
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

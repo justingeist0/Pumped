@@ -42,6 +42,42 @@ object Cloud {
             }
     }
 
+    fun uploadRoute(routeStandbyData: HashMap<String, Any>, nameData: HashMap<String, Any>,
+                            heightData: HashMap<String, Any>, betaScaleData: HashMap<String, Any>, commentData: HashMap<String, Any>) {
+        with(Cloud) {
+            val routesRef = FirebaseFirestore.getInstance().collection(ROUTE)
+            routesRef.document().apply {
+                set(routeStandbyData)
+                    .addOnSuccessListener { Log.d("TAG", "Uploaded Standby Info") }
+                    .addOnFailureListener { Log.d("TAG", "Failed") }
+
+                routesRef.document(id)
+                    .collection(NAME)
+                    .add(nameData)
+                    .addOnSuccessListener { Log.d("TAG", "Uploaded ID") }
+                    .addOnFailureListener { Log.d("TAG", "Failed") }
+
+                routesRef.document(id)
+                    .collection(HEIGHT)
+                    .add(heightData)
+                    .addOnSuccessListener { Log.d("TAG", "Uploaded Height") }
+                    .addOnFailureListener { Log.d("TAG", "Failed") }
+
+                routesRef.document(id)
+                    .collection(BETA_SCALE)
+                    .add(betaScaleData)
+                    .addOnSuccessListener { Log.d("TAG", "Uploaded Scale") }
+                    .addOnFailureListener { Log.d("TAG", "Failed") }
+
+                routesRef.document(id)
+                    .collection(COMMENT_DATA)
+                    .add(commentData)
+                    .addOnSuccessListener { Log.d("TAG", "Uploaded Comment") }
+                    .addOnFailureListener { Log.d("TAG", "Failed") }
+            }
+        }
+    }
+
     fun createRouteStandByHashMap(
         userID: String,
         name: String,

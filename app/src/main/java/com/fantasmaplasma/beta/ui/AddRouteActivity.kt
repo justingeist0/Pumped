@@ -118,10 +118,6 @@ class AddRouteActivity : AppCompatActivity() {
                 }
             etLayoutAddRouteHeight.error = heightErrorStr
 
-            Log.d("TAG", etLayoutAddRouteName.error.toString())
-            Log.d("TAG", betaScaleStr)
-            Log.d("TAG", etLayoutAddRouteHeight.error.toString())
-
             val isValid =
                 nameErrorStr.isEmpty() &&
                 heightErrorStr.isEmpty() &&
@@ -130,72 +126,38 @@ class AddRouteActivity : AppCompatActivity() {
             if(isValid) {
                 val latLng = getLatLng()
                 val betaScaleInt = Integer.parseInt(betaScaleStr)
-                uploadRoute(
-                    routeStandbyData = Cloud.createRouteStandByHashMap (
-                        "",
-                        routeName,
-                        latLng.latitude,
-                        latLng.longitude,
-                        Integer.parseInt(routeHeight),
-                        getRouteID(),
-                        betaScaleInt
-                    ),
-                    nameData = Cloud.createCommentDataHashMap(
-                        "",
-                        routeName
-                    ),
-                    heightData = Cloud.createCommentDataHashMap(
-                        "",
-                        routeHeight
-                    ),
-                    betaScaleData = Cloud.createCommentDataHashMap(
-                        "",
-                        betaScaleInt
-                    ),
-                    commentData = Cloud.createCommentDataHashMap (
-                        "",
-                        "comment"
+                with(Cloud) {
+                    uploadRoute(
+                        routeStandbyData = createRouteStandByHashMap (
+                            "",
+                            routeName,
+                            latLng.latitude,
+                            latLng.longitude,
+                            Integer.parseInt(routeHeight),
+                            getRouteID(),
+                            betaScaleInt
+                        ),
+                        nameData = createCommentDataHashMap(
+                            "",
+                            routeName
+                        ),
+                        heightData = createCommentDataHashMap(
+                            "",
+                            routeHeight
+                        ),
+                        betaScaleData = createCommentDataHashMap(
+                            "",
+                            betaScaleInt
+                        ),
+                        commentData = createCommentDataHashMap (
+                            "",
+                            "comment"
+                        )
                     )
-                )
+                }
                 finish()
             } else {
                 Toast.makeText(this@AddRouteActivity, "Invalid Input", Toast.LENGTH_SHORT).show()
-            }
-        }
-    }
-
-    private fun uploadRoute(routeStandbyData: HashMap<String, Any>, nameData: HashMap<String, Any>,
-                            heightData: HashMap<String, Any>, betaScaleData: HashMap<String, Any>, commentData: HashMap<String, Any>) {
-        with(Cloud) {
-            val routesRef = FirebaseFirestore.getInstance().collection(ROUTE)
-            routesRef.document().apply {
-                set(routeStandbyData)
-                    .addOnSuccessListener { Log.d("TAG", "Uploaded Standby Info") }
-                    .addOnFailureListener { Log.d("TAG", "Failed") }
-
-                routesRef.document(id)
-                    .collection(NAME)
-                    .add(nameData)
-                    .addOnSuccessListener { Log.d("TAG", "Uploaded ID") }
-                    .addOnFailureListener { Log.d("TAG", "Failed") }
-
-                routesRef.document(id)
-                    .collection(HEIGHT)
-                    .add(heightData)
-                    .addOnSuccessListener { Log.d("TAG", "Uploaded Height") }
-                    .addOnFailureListener { Log.d("TAG", "Failed") }
-
-                routesRef.document(id)
-                    .collection(BETA_SCALE)
-                    .add(betaScaleData)
-                    .addOnSuccessListener { Log.d("TAG", "Uploaded Scale") }
-                    .addOnFailureListener { Log.d("TAG", "Failed") }
-
-                routesRef.document(id)
-                    .collection(COMMENT_DATA)
-                    .add(commentData)
-                    .addOnSuccessListener { Log.d("TAG", "Uploaded Comment") }
-                    .addOnFailureListener { Log.d("TAG", "Failed") }
             }
         }
     }
