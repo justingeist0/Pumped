@@ -7,7 +7,6 @@ import android.content.pm.PackageManager
 import android.graphics.Point
 import android.location.Location
 import android.os.Bundle
-import android.util.Log
 import android.view.*
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
@@ -17,9 +16,8 @@ import androidx.core.view.children
 import androidx.lifecycle.ViewModelProvider
 import com.fantasmaplasma.beta.adapter.MarkerClusterRenderer
 import com.fantasmaplasma.beta.R
+import com.fantasmaplasma.beta.adapter.MarkerInfoWindowAdapter
 import com.fantasmaplasma.beta.data.Route
-import com.firebase.ui.auth.AuthUI
-import com.firebase.ui.auth.IdpResponse
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -28,11 +26,8 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MapStyleOptions
+import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.ktx.Firebase
-import com.google.firebase.ktx.initialize
 import com.google.maps.android.clustering.Cluster
 import com.google.maps.android.clustering.ClusterManager
 
@@ -80,10 +75,16 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, ClusterManager.OnC
                 removeNewRouteView()
         }
         mMap?.clear()
+        mViewModel.requestRoutesData()
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
-        mMap = googleMap.apply {
+        mClusterManager = ClusterManager(this, googleMap)
+        mClusterManager.setOnClusterClickListener(this)
+        mClusterManager.renderer =
+            MarkerClusterRenderer(this, googleMap, mClusterManager)
+        mViewModel.requestRoutesData()
+        googleMap.apply {
             try {
                 setMapStyle(
                     MapStyleOptions.loadRawResourceStyle(
@@ -92,28 +93,25 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, ClusterManager.OnC
                     )
                 )
             } catch (e: Exception) {}
-            setOnMapLongClickListener {
-                showAddLocationDialog()
+            setOnMapLongClickListener { location ->
+                showAddLocationDialog(location)
             }
-            mClusterManager = ClusterManager(this@MapsActivity, this)
-            mClusterManager.setOnClusterClickListener(this@MapsActivity)
             setOnCameraIdleListener(mClusterManager)
             setOnMarkerClickListener(mClusterManager)
-            mClusterManager.renderer =
-                MarkerClusterRenderer(this@MapsActivity, this, mClusterManager)
+            stopAnimation()
+            animateCamera(CameraUpdateFactory.zoomTo(minZoomLevel))
+            setOnMarkerClickListener { return@setOnMarkerClickListener true }
+            setInfoWindowAdapter(MarkerInfoWindowAdapter(this@MapsActivity))
         }
-        mViewModel.requestRoutesData()
-        requestLocationOnMap()
-        mMap?.stopAnimation()
-        mMap?.apply { animateCamera(CameraUpdateFactory.zoomTo(minZoomLevel)) }
+        mMap = googleMap
+        requestMoveToCurrentLocationOnMap()
     }
 
     override fun onClusterClick(cluster: Cluster<Route>?): Boolean {
-
-        return true
+        return false
     }
 
-    private fun requestLocationOnMap() {
+    private fun requestMoveToCurrentLocationOnMap() {
         val permissions = arrayOf(
             Manifest.permission.ACCESS_FINE_LOCATION,
             Manifest.permission.ACCESS_COARSE_LOCATION
@@ -153,7 +151,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, ClusterManager.OnC
         if (requestCode == LOCATION_PERMISSION_REQUEST_CODE && grantResults.isNotEmpty()) {
             for (result in grantResults) {
                 if (result == PackageManager.PERMISSION_GRANTED) {
-                    requestLocationOnMap()
+                    requestMoveToCurrentLocationOnMap()
                     return
                 }
             }
@@ -186,7 +184,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, ClusterManager.OnC
             else -> super.onOptionsItemSelected(item)
         }
 
-    private fun showAddLocationDialog() {
+    private fun showAddLocationDialog(location: LatLng? = null) {
         Dialog(this).apply {
             setContentView(R.layout.dialog_location_add)
 
@@ -207,9 +205,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, ClusterManager.OnC
                 )
                 cancel()
             }
+
            findViewById<LinearLayout>(R.id.ll_dialog_location_btns)
-               .children.iterator().forEach { btn ->
-                   btn.setOnClickListener(btnClickListener)
+               .children.iterator().forEach { routeBtn ->
+                   routeBtn.setOnClickListener(btnClickListener)
                }
 
             show()
@@ -225,7 +224,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, ClusterManager.OnC
             ).show()
             return
         }
-        draggableRouteMarker?.removeNewRouteView()
+        removeNewRouteView()
         draggableRouteMarker =
             layoutInflater.inflate(R.layout.layout_map_new_route, mContainer, false)
                 .apply {
@@ -241,7 +240,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, ClusterManager.OnC
 
                     findViewById<View>(R.id.img_btn_route_remove)
                         .setOnClickListener {
-                            it.removeNewRouteView()
+                            removeNewRouteView()
                         }
                     findViewById<View>(R.id.img_btn_route_add)
                         .setOnClickListener {
@@ -306,8 +305,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, ClusterManager.OnC
         }
     }
 
-    private fun View.removeNewRouteView() {
-        mContainer.removeView(this)
+    private fun removeNewRouteView() {
+        draggableRouteMarker ?: return
+        mContainer.removeView(draggableRouteMarker)
         draggableRouteMarker = null
     }
 
@@ -349,7 +349,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, ClusterManager.OnC
         )
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+/*    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == RC_SIGN_IN) {
             val response = IdpResponse.fromResultIntent(data)
@@ -359,6 +359,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, ClusterManager.OnC
 
             }
         }
-    }
+    }*/
 
 }

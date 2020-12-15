@@ -16,11 +16,9 @@ import com.google.maps.android.clustering.view.DefaultClusterRenderer
 class MarkerClusterRenderer(private val mContext: Context, map: GoogleMap, clusterManager: ClusterManager<Route>)
     : DefaultClusterRenderer<Route>(mContext, map, clusterManager) {
 
-    override fun setOnClusterItemClickListener(listener: ClusterManager.OnClusterItemClickListener<Route>?) {
-        super.setOnClusterItemClickListener(listener)
-    }
-
     override fun onBeforeClusterItemRendered(item: Route, markerOptions: MarkerOptions) {
+        val markerWidthPx = mContext.resources.getDimensionPixelSize(R.dimen.marker_width)
+        val markerHeightPx = mContext.resources.getDimensionPixelSize(R.dimen.marker_height)
         val markerImage = BitmapDescriptorFactory.fromBitmap(
             Bitmap.createScaledBitmap(
                 BitmapFactory.decodeResource(mContext.resources,
@@ -36,15 +34,13 @@ class MarkerClusterRenderer(private val mContext: Context, map: GoogleMap, clust
                         else ->
                             R.drawable.img_marker_sport
                     }
-                ),
-                    mContext.resources.getDimensionPixelSize(R.dimen.marker_width),
-                    mContext.resources.getDimensionPixelSize(R.dimen.marker_height),
-                    false
-                )
+                ), markerWidthPx, markerHeightPx, false
+            )
         )
         markerOptions.apply {
             title(item.title)
             icon(markerImage)
         }
     }
+
 }

@@ -7,11 +7,11 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.QuerySnapshot
 
 object Cloud {
-    const val ROUTE = "route"
-    const val NAME = "name"
-    const val BETA_SCALE = "betaScale"
-    const val HEIGHT = "height"
-    const val COMMENT_DATA = "commentData"
+    private const val ROUTE = "route"
+    private const val NAME = "name"
+    private const val BETA_SCALE = "betaScale"
+    private const val HEIGHT = "height"
+    private const val COMMENT_DATA = "commentData"
     private const val USER_ID = "userID"
     private const val LATITUDE = "latitude"
     private const val LONGITUDE = "longitude"

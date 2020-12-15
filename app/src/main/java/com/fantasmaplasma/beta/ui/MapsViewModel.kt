@@ -13,10 +13,17 @@ class MapsViewModel : ViewModel() {
     val routesLiveData: LiveData<MutableList<Route>>
         get() = _routeListLiveData
 
-    fun requestRoutesData() {
-        Cloud.downloadRouteClusterItems { routes ->
-            _routeListLiveData.postValue(routes)
-        }
+    private lateinit var mRoutes: MutableList<Route>
+
+    fun requestRoutesData(shouldForceRequest: Boolean = false) {
+        val shouldDownload = shouldForceRequest || !this::mRoutes.isInitialized || mRoutes.size == 0
+        if(shouldDownload)
+            Cloud.downloadRouteClusterItems { routes ->
+                mRoutes = routes
+                _routeListLiveData.postValue(mRoutes)
+            }
+        else
+            _routeListLiveData.postValue(mRoutes)
     }
 
 /*    private fun logIn() : Boolean {
