@@ -5,7 +5,6 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
@@ -18,10 +17,9 @@ import com.fantasmaplasma.beta.data.Route
 import com.fantasmaplasma.beta.databinding.ActivityAddRouteBinding
 import com.fantasmaplasma.beta.utilities.Cloud
 import com.google.android.gms.maps.model.LatLng
-import com.google.firebase.firestore.FirebaseFirestore
 
 class AddRouteActivity : AppCompatActivity() {
-    private lateinit var binding: ActivityAddRouteBinding
+    private lateinit var mBinding: ActivityAddRouteBinding
     private lateinit var mImageAdapter: ImageAdapter
 
     companion object {
@@ -30,8 +28,8 @@ class AddRouteActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityAddRouteBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        mBinding = ActivityAddRouteBinding.inflate(layoutInflater)
+        setContentView(mBinding.root)
         initToolbar()
         initListeners()
         initImageRecyclerView()
@@ -65,7 +63,7 @@ class AddRouteActivity : AppCompatActivity() {
     }
 
     private fun initListeners() {
-        with(binding) {
+        with(mBinding) {
 
             sliderAddRouteDifficulty.addOnChangeListener { _, value, _ ->
                 val betaScaleStr = getString(R.string.difficulty, value.toInt().toString())
@@ -82,7 +80,7 @@ class AddRouteActivity : AppCompatActivity() {
     }
 
     private fun validateInput() {
-        with(binding) {
+        with(mBinding) {
             val routeName = etAddRouteName.text.toString()
             val nameErrorStr =
                 when {
@@ -166,7 +164,7 @@ class AddRouteActivity : AppCompatActivity() {
         mImageAdapter = ImageAdapter(this) {
             startIntentSelectImages()
         }
-        binding.rvAddRouteImages.apply {
+        mBinding.rvAddRouteImages.apply {
             adapter = mImageAdapter
             layoutManager =
                 LinearLayoutManager(this@AddRouteActivity, LinearLayoutManager.HORIZONTAL, false)
@@ -194,7 +192,7 @@ class AddRouteActivity : AppCompatActivity() {
             mImageAdapter.setImageList(
                 ImagePicker.getImages(data)
             )
-            binding.rvAddRouteImages.invalidate()
+            mBinding.rvAddRouteImages.invalidate()
         }
         super.onActivityResult(requestCode, resultCode, data)
     }

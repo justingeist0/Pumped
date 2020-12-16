@@ -18,6 +18,7 @@ import com.fantasmaplasma.beta.adapter.MarkerClusterRenderer
 import com.fantasmaplasma.beta.R
 import com.fantasmaplasma.beta.adapter.MarkerInfoWindowAdapter
 import com.fantasmaplasma.beta.data.Route
+import com.fantasmaplasma.beta.databinding.ActivityMapsBinding
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -31,12 +32,13 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.google.maps.android.clustering.Cluster
 import com.google.maps.android.clustering.ClusterManager
 
-class MapsActivity : AppCompatActivity(), OnMapReadyCallback, ClusterManager.OnClusterClickListener<Route> {
+class MapsActivity : AppCompatActivity(), OnMapReadyCallback, ClusterManager.OnClusterClickListener<Route>, GoogleMap.OnMarkerClickListener {
     private lateinit var mMapView: View
     private lateinit var mContainer: RelativeLayout
     private lateinit var mFusedLocationProviderClient: FusedLocationProviderClient
     private lateinit var mClusterManager: ClusterManager<Route>
     private lateinit var mViewModel: MapsViewModel
+    private lateinit var mBinding: ActivityMapsBinding
     private var mMap: GoogleMap? = null
 
     companion object {
@@ -51,7 +53,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, ClusterManager.OnC
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_maps)
+        mBinding = ActivityMapsBinding.inflate(layoutInflater)
+        setContentView(mBinding.root)
         initViewModel()
         val mapFragment = supportFragmentManager
             .findFragmentById(R.id.map) as SupportMapFragment
@@ -100,15 +103,31 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, ClusterManager.OnC
             setOnMarkerClickListener(mClusterManager)
             stopAnimation()
             animateCamera(CameraUpdateFactory.zoomTo(minZoomLevel))
-            setOnMarkerClickListener { return@setOnMarkerClickListener true }
+            setOnMarkerClickListener(this@MapsActivity)
             setInfoWindowAdapter(MarkerInfoWindowAdapter(this@MapsActivity))
         }
         mMap = googleMap
         requestMoveToCurrentLocationOnMap()
     }
 
-    override fun onClusterClick(cluster: Cluster<Route>?): Boolean {
+    override fun onMarkerClick(p0: Marker?): Boolean {
+        updateSlidingDrawer(p0)
         return false
+    }
+
+    override fun onClusterClick(cluster: Cluster<Route>?): Boolean {
+        updateSlidingDrawer(cluster)
+        return false
+    }
+
+    private fun updateSlidingDrawer(marker: Marker?) {
+        mBinding.nvMapRouteInfo.apply {
+            this.
+        }
+    }
+
+    private fun updateSlidingDrawer(marker: Cluster<Route>?) {
+        mBinding.nvMapRouteInfo
     }
 
     private fun requestMoveToCurrentLocationOnMap() {
