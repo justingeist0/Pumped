@@ -6,4 +6,5 @@
 
     <color name="background">#EAEAEA</color>
     <color name="colorTextButton">#FFFFFF</color>
+    <color name="navViewTextBackground">#80EAEAEA</color>
 </resources>
