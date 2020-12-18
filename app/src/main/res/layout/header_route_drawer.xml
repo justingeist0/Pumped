@@ -53,4 +53,12 @@
         app:layout_constraintBottom_toBottomOf="@id/iv_nav_view_route"
         app:layout_constraintStart_toStartOf="parent"/>
 
+    <Button
+        android:id="@+id/btn_nav_view_show_more"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/more_info"
+        app:layout_constraintTop_toBottomOf="@id/iv_nav_view_route"
+        android:layout_margin="16dp"/>
+
 </androidx.constraintlayout.widget.ConstraintLayout>
