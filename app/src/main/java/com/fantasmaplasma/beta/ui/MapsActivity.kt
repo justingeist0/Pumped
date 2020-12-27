@@ -14,6 +14,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.core.view.children
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.ViewModelProvider
 import com.fantasmaplasma.beta.adapter.MarkerClusterRenderer
 import com.fantasmaplasma.beta.R
@@ -29,7 +30,6 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MapStyleOptions
-import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.maps.android.clustering.Cluster
 import com.google.maps.android.clustering.ClusterManager
@@ -57,6 +57,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, ClusterManager.OnC
         super.onCreate(savedInstanceState)
         mBinding = ActivityMapsBinding.inflate(layoutInflater)
         setContentView(mBinding.root)
+        mBinding.dlMap.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
         initViewModel()
         val mapFragment = supportFragmentManager
             .findFragmentById(R.id.map) as SupportMapFragment
@@ -74,10 +75,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, ClusterManager.OnC
 
     override fun onResume() {
         super.onResume()
-        draggableRouteMarker?.apply {
-            if(visibility == View.INVISIBLE)
-                removeNewRouteView()
-        }
+        if (draggableRouteMarker?.visibility == View.INVISIBLE)
+            removeNewRouteView()
         mMap?.clear()
         mViewModel.requestRoutesData()
     }
@@ -112,22 +111,45 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, ClusterManager.OnC
     }
 
     override fun onClusterItemClick(item: Route?): Boolean {
-        initNavDrawer(isSingleItem = true)
-        mNavDrawerSingle?.apply {
-            tvNavViewRouteGrade.text = item?.betaScale.toString()
-            tvNavViewRouteName.text = item?.name
-            tvNavViewRouteType.text = item?.getType().toString()
+        item?.let { marker ->
+            initNavDrawer(isSingleItem = true)
+            setSingleItemInfo(marker)
+            centerMapOverPos(marker.position)
+            openSlidingDrawer()
+            return true
         }
-        openSlidingDrawer()
-        return true
+        return false
+    }
+
+    private fun setSingleItemInfo(route: Route) {
+        mNavDrawerSingle?.apply {
+            tvNavViewRouteGrade.text = route.betaScale.toString()
+            tvNavViewRouteName.text = route.name
+            tvNavViewRouteType.text = route.getType().toString()
+        }
     }
 
     override fun onClusterClick(cluster: Cluster<Route>?): Boolean {
-        initNavDrawer(isSingleItem = false)
-        mNavDrawerSingle?.apply {
-        } //TODO Display cluster information
-        openSlidingDrawer()
-        return true
+        cluster?.let { marker ->
+            initNavDrawer(isSingleItem = false)
+            setClusterItemInfo(marker)
+            centerMapOverPos(marker.position)
+            openSlidingDrawer()
+            return true
+        }
+        return false
+    }
+
+    private fun setClusterItemInfo(routes: Cluster<Route>) {
+        mNavDrawerCluster?.apply {
+
+        }
+    }
+
+    private fun centerMapOverPos(latLng: LatLng) {
+        mMap?.animateCamera(
+            CameraUpdateFactory.newLatLng(latLng)
+        )
     }
 
     private fun initNavDrawer(isSingleItem: Boolean) {
@@ -147,16 +169,16 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, ClusterManager.OnC
                 mNavDrawerSingle = null
                 addHeaderView(mNavDrawerCluster!!.root)
             }
-            visibility = View.VISIBLE
         }
     }
 
     private fun openSlidingDrawer() {
+        mBinding.dlMap.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
         mBinding.dlMap.openDrawer(GravityCompat.START)
     }
 
     private fun requestMoveToCurrentLocationOnMap() {
-        val permissions = arrayOf(
+        val permissions = arrayOf (
             Manifest.permission.ACCESS_FINE_LOCATION,
             Manifest.permission.ACCESS_COARSE_LOCATION
         )
