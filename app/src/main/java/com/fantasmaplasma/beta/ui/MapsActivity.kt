@@ -2,6 +2,7 @@ package com.fantasmaplasma.beta.ui
 
 import android.Manifest
 import android.app.Dialog
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Point
@@ -16,18 +17,18 @@ import androidx.core.view.GravityCompat
 import androidx.core.view.children
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.fantasmaplasma.beta.adapter.MarkerClusterRenderer
 import com.fantasmaplasma.beta.R
 import com.fantasmaplasma.beta.adapter.MarkerInfoWindowAdapter
+import com.fantasmaplasma.beta.adapter.RouteClusterAdapter
 import com.fantasmaplasma.beta.data.Route
 import com.fantasmaplasma.beta.databinding.ActivityMapsBinding
-import com.fantasmaplasma.beta.databinding.HeaderRouteDrawerBinding
+import com.fantasmaplasma.beta.databinding.DrawerClusterRouteBinding
+import com.fantasmaplasma.beta.databinding.DrawerSingleRouteBinding
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
-import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.OnMapReadyCallback
-import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.*
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.android.gms.maps.model.MarkerOptions
@@ -39,8 +40,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, ClusterManager.OnC
     private lateinit var mClusterManager: ClusterManager<Route>
     private lateinit var mViewModel: MapsViewModel
     private lateinit var mBinding: ActivityMapsBinding
-    private var mNavDrawerSingle: HeaderRouteDrawerBinding? = null
-    private var mNavDrawerCluster: HeaderRouteDrawerBinding? = null
+    private var mNavDrawerSingle: DrawerSingleRouteBinding? = null
+    private var mNavDrawerCluster: DrawerClusterRouteBinding? = null
     private var mMap: GoogleMap? = null
 
     companion object {
@@ -114,7 +115,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, ClusterManager.OnC
         item?.let { marker ->
             initNavDrawer(isSingleItem = true)
             setSingleItemInfo(marker)
-            centerMapOverPos(marker.position)
+            setVisibleFromDrawer(marker.position)
             openSlidingDrawer()
             return true
         }
@@ -133,7 +134,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, ClusterManager.OnC
         cluster?.let { marker ->
             initNavDrawer(isSingleItem = false)
             setClusterItemInfo(marker)
-            centerMapOverPos(marker.position)
+            setVisibleFromDrawer(marker.position)
             openSlidingDrawer()
             return true
         }
@@ -141,28 +142,63 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, ClusterManager.OnC
     }
 
     private fun setClusterItemInfo(routes: Cluster<Route>) {
-        mNavDrawerCluster?.apply {
-
+        val context: Context = this
+        mNavDrawerCluster?.rvDrawerRouteCluster?.apply {
+            adapter = RouteClusterAdapter(context, routes) { selectedRoute ->
+                maxZoomIn()
+                onClusterItemClick(selectedRoute)
+            }
+            layoutManager = LinearLayoutManager(context)
+            setHasFixedSize(true)
         }
     }
 
-    private fun centerMapOverPos(latLng: LatLng) {
-        mMap?.animateCamera(
-            CameraUpdateFactory.newLatLng(latLng)
-        )
+    private fun maxZoomIn() {
+        mMap?.apply {
+            animateCamera(CameraUpdateFactory.zoomTo(minZoomLevel))
+        }
+    }
+
+    /**
+     * Move the map to view marker from the far right side of screen.
+     * @param latLng Position of marker clicked.
+     */
+    private fun setVisibleFromDrawer(latLng: LatLng) {
+        val markerWidth = resources.getDimension(R.dimen.marker_width).toInt()
+        mMap?.apply {
+            val startLatLng = projection.fromScreenLocation(
+                Point(
+                    mBinding.containerMap.width - markerWidth,
+                    mBinding.containerMap.height/2
+                )
+            )
+            val endLatLng = projection.fromScreenLocation(
+                Point(
+                    0,
+                    mBinding.containerMap.height/2
+                )
+            )
+            val newLatLng = LatLng(
+                latLng.latitude,
+                latLng.longitude - (startLatLng.longitude - endLatLng.longitude)/2.0
+            )
+            animateCamera(
+                CameraUpdateFactory.newLatLng(newLatLng)
+            )
+        }
     }
 
     private fun initNavDrawer(isSingleItem: Boolean) {
         mBinding.nvMapRouteInfo.apply {
             if(isSingleItem && mNavDrawerSingle == null) {
-                mNavDrawerSingle = HeaderRouteDrawerBinding.inflate(layoutInflater)
+                mNavDrawerSingle = DrawerSingleRouteBinding.inflate(layoutInflater)
                 mNavDrawerCluster?.root?.let { drawerClusterView ->
                     removeHeaderView(drawerClusterView)
                 }
                 mNavDrawerCluster = null
                 addHeaderView(mNavDrawerSingle!!.root)
-            } else if(mNavDrawerCluster == null) {
-                mNavDrawerCluster = HeaderRouteDrawerBinding.inflate(layoutInflater)
+            } else if(!isSingleItem && mNavDrawerCluster == null) {
+                mNavDrawerCluster = DrawerClusterRouteBinding.inflate(layoutInflater)
                 mNavDrawerSingle?.root?.let { drawerSingleView ->
                     removeHeaderView(drawerSingleView)
                 }
