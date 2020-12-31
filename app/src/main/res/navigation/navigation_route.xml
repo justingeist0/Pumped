@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto" android:id="@+id/navigation_route"
+    app:startDestination="@id/basicRouteInfoFragment">
+
+    <fragment
+        android:id="@+id/basicRouteInfoFragment"
+        android:name="com.fantasmaplasma.beta.ui.route.BasicRouteInfoFragment"
+        android:label="BasicRouteInfoFragment" />
+</navigation>

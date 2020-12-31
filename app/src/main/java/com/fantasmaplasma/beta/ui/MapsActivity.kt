@@ -26,6 +26,7 @@ import com.fantasmaplasma.beta.data.Route
 import com.fantasmaplasma.beta.databinding.ActivityMapsBinding
 import com.fantasmaplasma.beta.databinding.DrawerClusterRouteBinding
 import com.fantasmaplasma.beta.databinding.DrawerSingleRouteBinding
+import com.fantasmaplasma.beta.ui.route.RouteInfoActivity
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.*
@@ -115,7 +116,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, ClusterManager.OnC
         item?.let { marker ->
             initNavDrawer(isSingleItem = true)
             setSingleItemInfo(marker)
-            setVisibleFromDrawer(marker.position)
             openSlidingDrawer()
             return true
         }
@@ -127,6 +127,27 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, ClusterManager.OnC
             tvNavViewRouteGrade.text = route.betaScale.toString()
             tvNavViewRouteName.text = route.name
             tvNavViewRouteType.text = route.getType().toString()
+            btnNavViewShowMore.setOnClickListener {
+                startActivity(
+                    Intent(this@MapsActivity, RouteInfoActivity::class.java)
+                )
+            }
+            root.addOnLayoutChangeListener(object: View.OnLayoutChangeListener {
+                override fun onLayoutChange(
+                    v: View?,
+                    left: Int,
+                    top: Int,
+                    right: Int,
+                    bottom: Int,
+                    oldLeft: Int,
+                    oldTop: Int,
+                    oldRight: Int,
+                    oldBottom: Int
+                ) {
+                    root.removeOnLayoutChangeListener(this)
+                    setVisibleFromDrawer(route.position)
+                }
+            })
         }
     }
 
@@ -151,11 +172,29 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, ClusterManager.OnC
             layoutManager = LinearLayoutManager(context)
             setHasFixedSize(true)
         }
+        mNavDrawerCluster?.apply {
+            root.addOnLayoutChangeListener(object: View.OnLayoutChangeListener {
+                override fun onLayoutChange(
+                    v: View?,
+                    left: Int,
+                    top: Int,
+                    right: Int,
+                    bottom: Int,
+                    oldLeft: Int,
+                    oldTop: Int,
+                    oldRight: Int,
+                    oldBottom: Int
+                ) {
+                    root.removeOnLayoutChangeListener(this)
+                    setVisibleFromDrawer(routes.position)
+                }
+            })
+        }
     }
 
     private fun maxZoomIn() {
         mMap?.apply {
-            animateCamera(CameraUpdateFactory.zoomTo(minZoomLevel))
+            animateCamera(CameraUpdateFactory.zoomTo(maxZoomLevel))
         }
     }
 
@@ -164,23 +203,23 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, ClusterManager.OnC
      * @param latLng Position of marker clicked.
      */
     private fun setVisibleFromDrawer(latLng: LatLng) {
-        val markerWidth = resources.getDimension(R.dimen.marker_width).toInt()
         mMap?.apply {
             val startLatLng = projection.fromScreenLocation(
-                Point(
-                    mBinding.containerMap.width - markerWidth,
-                    mBinding.containerMap.height/2
-                )
-            )
-            val endLatLng = projection.fromScreenLocation(
                 Point(
                     0,
                     mBinding.containerMap.height/2
                 )
             )
+            val endXPos = (mNavDrawerSingle?.root?.width ?: mNavDrawerCluster?.root?.width ?: 0)
+            val endLatLng = projection.fromScreenLocation(
+                Point(
+                    endXPos,
+                    mBinding.containerMap.height/2
+                )
+            )
             val newLatLng = LatLng(
                 latLng.latitude,
-                latLng.longitude - (startLatLng.longitude - endLatLng.longitude)/2.0
+                latLng.longitude - (endLatLng.longitude - startLatLng.longitude)/2.0
             )
             animateCamera(
                 CameraUpdateFactory.newLatLng(newLatLng)
