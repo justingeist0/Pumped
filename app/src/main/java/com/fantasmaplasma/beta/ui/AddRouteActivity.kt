@@ -104,21 +104,8 @@ class AddRouteActivity : AppCompatActivity() {
                     .show()
             }
 
-            val routeHeight = etAddRouteHeight.text.toString()
-            val heightErrorStr =
-                when {
-                    routeHeight.isEmpty() ->
-                        "Make your best estimate for the height."
-                    routeHeight.length > 5 ->
-                        "Oxygen level too low at that height."
-                    else ->
-                        ""
-                }
-            etLayoutAddRouteHeight.error = heightErrorStr
-
             val isValid =
                 nameErrorStr.isEmpty() &&
-                heightErrorStr.isEmpty() &&
                 betaScaleStr != "?"
 
             if(isValid) {
@@ -126,12 +113,11 @@ class AddRouteActivity : AppCompatActivity() {
                 val betaScaleInt = Integer.parseInt(betaScaleStr)
                 with(Cloud) {
                     uploadRoute(
-                        routeStandbyData = createRouteStandByHashMap (
+                        routeStandbyData = createRouteStandByHashMap(
                             "",
                             routeName,
                             latLng.latitude,
                             latLng.longitude,
-                            Integer.parseInt(routeHeight),
                             getRouteID(),
                             betaScaleInt
                         ),
@@ -139,15 +125,11 @@ class AddRouteActivity : AppCompatActivity() {
                             "",
                             routeName
                         ),
-                        heightData = createCommentDataHashMap(
-                            "",
-                            routeHeight
-                        ),
                         betaScaleData = createCommentDataHashMap(
                             "",
                             betaScaleInt
                         ),
-                        commentData = createCommentDataHashMap (
+                        commentData = createCommentDataHashMap(
                             "",
                             "comment"
                         )

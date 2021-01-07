@@ -5,10 +5,10 @@ import com.google.maps.android.clustering.ClusterItem
 
 class Route(private val latLng: LatLng,
             val name: String,
-            val height: Int,
             val betaScale: Int,
-            val userID: String,
-            private val type: Int = BOULDERING
+            val type: Int,
+            val routeID: String,
+            val userID: String
 )
     : ClusterItem {
 
@@ -21,10 +21,8 @@ class Route(private val latLng: LatLng,
     }
 
     override fun getSnippet(): String {
-        return height.toString()
+        return type.toString()
     }
-
-    fun getType() = type
 
     companion object {
         const val BOULDERING = 0
@@ -32,5 +30,4 @@ class Route(private val latLng: LatLng,
         const val TRAD = 2
         const val ALPINE = 3
     }
-
 }

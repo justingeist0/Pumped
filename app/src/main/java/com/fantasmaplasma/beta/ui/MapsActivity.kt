@@ -70,6 +70,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, ClusterManager.OnC
     private fun initViewModel() {
         mViewModel = ViewModelProvider(this).get(MapsViewModel::class.java)
         mViewModel.routesLiveData.observe(this) { clusterItems ->
+            mMap ?: return@observe
             mClusterManager.clearItems()
             mClusterManager.addItems(clusterItems)
         }
@@ -79,7 +80,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, ClusterManager.OnC
         super.onResume()
         if (draggableRouteMarker?.visibility == View.INVISIBLE)
             removeNewRouteView()
-        mMap?.clear()
         mViewModel.requestRoutesData()
     }
 
@@ -90,15 +90,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, ClusterManager.OnC
             MarkerClusterRenderer(this, googleMap, mClusterManager)
         mClusterManager.setOnClusterItemClickListener(this)
         mViewModel.requestRoutesData()
-        googleMap.apply {
-            try {
-                setMapStyle(
-                    MapStyleOptions.loadRawResourceStyle(
-                        this@MapsActivity,
-                        R.raw.map_style
-                    )
-                )
-            } catch (e: Exception) {}
+        mMap = googleMap.apply {
             setOnMapLongClickListener { location ->
                 showAddLocationDialog(location)
             }
@@ -107,8 +99,15 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, ClusterManager.OnC
             stopAnimation()
             animateCamera(CameraUpdateFactory.zoomTo(minZoomLevel))
             setInfoWindowAdapter(MarkerInfoWindowAdapter(this@MapsActivity))
+            try {
+                setMapStyle(
+                    MapStyleOptions.loadRawResourceStyle(
+                        this@MapsActivity,
+                        R.raw.map_style
+                    )
+                )
+            } catch (e: Exception) {}
         }
-        mMap = googleMap
         requestMoveToCurrentLocationOnMap()
     }
 
@@ -126,7 +125,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, ClusterManager.OnC
         mNavDrawerSingle?.apply {
             tvNavViewRouteGrade.text = route.betaScale.toString()
             tvNavViewRouteName.text = route.name
-            tvNavViewRouteType.text = route.getType().toString()
+            tvNavViewRouteType.text = route.type.toString()
             btnNavViewShowMore.setOnClickListener {
                 startActivity(
                     Intent(this@MapsActivity, RouteInfoActivity::class.java)

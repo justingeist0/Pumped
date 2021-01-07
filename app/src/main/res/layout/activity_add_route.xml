@@ -93,36 +93,12 @@
             </LinearLayout>
 
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/et_layout_add_route_height"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="8dp"
                 android:layout_marginTop="8dp"
                 android:background="@color/colorTextButton"
-                android:hint="@string/height_ft"
-                android:textColorHint="@color/colorPrimary"
-                app:counterEnabled="true"
-                app:counterMaxLength="4"
-                app:counterTextColor="@color/colorPrimary"
-                app:hintTextColor="@color/colorPrimary">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/et_add_route_height"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/underline_edit_text_selector"
-                    android:inputType="number"
-                    android:textColor="@color/colorPrimaryDark" />
-
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="8dp"
-                android:layout_marginTop="8dp"
-                android:background="@color/colorTextButton"
-                android:hint="@string/app_name"
+                android:hint="@string/comments"
                 android:textColorHint="@color/colorPrimary"
                 app:counterEnabled="true"
                 app:counterMaxLength="1000"
@@ -131,29 +107,6 @@
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/et_add_route_beta"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/underline_edit_text_selector"
-                    android:textColor="@color/colorPrimaryDark" />
-
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/et_layout_add_route_location"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="8dp"
-                android:background="@color/colorTextButton"
-                android:hint="@string/locating_information"
-                android:textColorHint="@color/colorPrimary"
-                app:counterEnabled="true"
-                app:counterMaxLength="1000"
-                app:counterTextColor="@color/colorPrimary"
-                app:helperText="@string/latitude_and_longitude"
-                app:hintTextColor="@color/colorPrimary">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/et_add_route_location"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="@drawable/underline_edit_text_selector"

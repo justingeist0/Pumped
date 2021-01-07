@@ -31,10 +31,10 @@ object Cloud {
                                 routeJson.getDouble(LONGITUDE)!!
                             ),
                             name = routeJson.getString(NAME)!!,
-                            height = routeJson.getLong(HEIGHT)!!.toInt(),
+                            type = routeJson.getLong(CATEGORY_ID)!!.toInt(),
                             betaScale = routeJson.getLong(BETA_SCALE)!!.toInt(),
+                            routeID = routeJson.id,
                             userID = routeJson.getString(USER_ID)!!,
-                            type = routeJson.getLong(CATEGORY_ID)!!.toInt()
                         ))
                     } catch (e: Exception) {}
                 }
@@ -43,38 +43,30 @@ object Cloud {
     }
 
     fun uploadRoute(routeStandbyData: HashMap<String, Any>, nameData: HashMap<String, Any>,
-                            heightData: HashMap<String, Any>, betaScaleData: HashMap<String, Any>, commentData: HashMap<String, Any>) {
-        with(Cloud) {
-            val routesRef = FirebaseFirestore.getInstance().collection(ROUTE)
-            routesRef.document().apply {
-                set(routeStandbyData)
-                    .addOnSuccessListener { Log.d("TAG", "Uploaded Standby Info") }
-                    .addOnFailureListener { Log.d("TAG", "Failed") }
+                    betaScaleData: HashMap<String, Any>, commentData: HashMap<String, Any>) {
+        val routesRef = FirebaseFirestore.getInstance().collection(ROUTE)
+        routesRef.document().apply {
+            set(routeStandbyData)
+                .addOnSuccessListener { Log.d("TAG", "Uploaded Standby Info") }
+                .addOnFailureListener { Log.d("TAG", "Failed") }
 
-                routesRef.document(id)
-                    .collection(NAME)
-                    .add(nameData)
-                    .addOnSuccessListener { Log.d("TAG", "Uploaded ID") }
-                    .addOnFailureListener { Log.d("TAG", "Failed") }
+            routesRef.document(id)
+                .collection(NAME)
+                .add(nameData)
+                .addOnSuccessListener { Log.d("TAG", "Uploaded ID") }
+                .addOnFailureListener { Log.d("TAG", "Failed") }
 
-                routesRef.document(id)
-                    .collection(HEIGHT)
-                    .add(heightData)
-                    .addOnSuccessListener { Log.d("TAG", "Uploaded Height") }
-                    .addOnFailureListener { Log.d("TAG", "Failed") }
+            routesRef.document(id)
+                .collection(BETA_SCALE)
+                .add(betaScaleData)
+                .addOnSuccessListener { Log.d("TAG", "Uploaded Scale") }
+                .addOnFailureListener { Log.d("TAG", "Failed") }
 
-                routesRef.document(id)
-                    .collection(BETA_SCALE)
-                    .add(betaScaleData)
-                    .addOnSuccessListener { Log.d("TAG", "Uploaded Scale") }
-                    .addOnFailureListener { Log.d("TAG", "Failed") }
-
-                routesRef.document(id)
-                    .collection(COMMENT_DATA)
-                    .add(commentData)
-                    .addOnSuccessListener { Log.d("TAG", "Uploaded Comment") }
-                    .addOnFailureListener { Log.d("TAG", "Failed") }
-            }
+            routesRef.document(id)
+                .collection(COMMENT_DATA)
+                .add(commentData)
+                .addOnSuccessListener { Log.d("TAG", "Uploaded Comment") }
+                .addOnFailureListener { Log.d("TAG", "Failed") }
         }
     }
 
@@ -83,7 +75,6 @@ object Cloud {
         name: String,
         latitude: Double,
         longitude: Double,
-        height: Int,
         categoryID: Int,
         betaScale: Int
     )
@@ -93,7 +84,6 @@ object Cloud {
             NAME to name,
             LATITUDE to latitude,
             LONGITUDE to longitude,
-            HEIGHT to height,
             CATEGORY_ID to categoryID,
             BETA_SCALE to betaScale
         )
